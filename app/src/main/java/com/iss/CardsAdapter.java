@@ -56,7 +56,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
 
                     // Handle first click on unflipped card
                     if (!card.isFlipped && !card.isMatched && GameActivity.selectedCard == null) {
-                        // First click on a placeholder
                         GameActivity.selectedCard = card;
                         card.isFlipped = true;
                         notifyDataSetChanged();
@@ -76,6 +75,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                                 if (GameActivity.selectedCard != null && GameActivity.selectedCard.image == card.image) {
                                     GameActivity.selectedCard.isMatched = true;
                                     card.isMatched = true;
+                                    ((GameActivity) cardImage.getContext()).incrementScore();
                                 }
 
                                 // No match found, flip it back

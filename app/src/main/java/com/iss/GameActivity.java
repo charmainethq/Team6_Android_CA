@@ -1,6 +1,8 @@
 package com.iss;
 
 import android.os.Bundle;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,6 +17,11 @@ public class GameActivity extends AppCompatActivity {
 
     public List<Card> cards;
     public static Card selectedCard = null;
+    private TextView scoreCounter;
+    private int score = 0;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +40,26 @@ public class GameActivity extends AppCompatActivity {
         }
         Collections.shuffle(cards);
 
+        scoreCounter = findViewById(R.id.score_counter);
+        updateScore();
+
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         adapter = new CardsAdapter(cards);
         recyclerView.setAdapter(adapter);
     }
+
+    public void incrementScore() {
+        score++;
+        updateScore();
+    }
+    private void updateScore() {
+        scoreCounter.setText("Score: " + score + "/6");
+    }
+
+
+
+
+
+
 }
