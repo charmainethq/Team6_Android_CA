@@ -34,6 +34,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         return cards.size();
     }
 
+    //TODO: stuff doesn't persist eg orientation change score and time will die
     public class CardViewHolder extends RecyclerView.ViewHolder {
         private ImageView cardImage;
 
@@ -53,11 +54,15 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
             cardImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    // Start the game when the first card is clicked
+                    if (!((GameActivity) cardImage.getContext()).isGameStarted) {
+                        ((GameActivity) cardImage.getContext()).startTimer();
+                    }
                     // Handle first click on unflipped card
                     if (!card.isFlipped && !card.isMatched && GameActivity.selectedCard == null) {
                         GameActivity.selectedCard = card;
                         card.isFlipped = true;
+
                         notifyDataSetChanged();
                     }
 

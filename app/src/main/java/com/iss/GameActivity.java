@@ -1,7 +1,11 @@
 package com.iss;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.SystemClock;
+import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -20,6 +24,12 @@ public class GameActivity extends AppCompatActivity {
     private TextView scoreCounter;
     private int score = 0;
 
+    boolean isGameStarted = false;
+
+    private Chronometer timerChronometer;
+
+
+
 
 
 
@@ -27,6 +37,9 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        //For testing
+        //int[] cardImages = {R.drawable.image1};
 
         // TODO: replace with downloaded images somehow
         int[] cardImages = {R.drawable.image1, R.drawable.image2, R.drawable.image3,
@@ -55,9 +68,26 @@ public class GameActivity extends AppCompatActivity {
     }
     private void updateScore() {
         scoreCounter.setText("Score: " + score + "/6");
+        checkGameOver();
     }
 
 
+
+    public void startTimer() {
+        if (!isGameStarted) {
+            timerChronometer = findViewById(R.id.timer_view);
+            timerChronometer.setBase(SystemClock.elapsedRealtime());
+            timerChronometer.start();
+            isGameStarted = true;
+        }
+    }
+    public void checkGameOver() {
+        if (score == 6) {
+            timerChronometer.stop();
+            // Show game over dialog or something
+            Toast.makeText(this,"You won!", Toast.LENGTH_LONG).show();
+        }
+    }
 
 
 
