@@ -34,7 +34,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         return cards.size();
     }
 
-    //TODO: stuff doesn't persist eg orientation change score and time will die
+
     public class CardViewHolder extends RecyclerView.ViewHolder {
         private ImageView cardImage;
 
@@ -43,6 +43,9 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
             cardImage = itemView.findViewById(R.id.card_image);
         }
 
+        //TODO:
+        // 1. if you click too fast it acts kinda funny. implement a delay if 2 cards are flipped?
+        // 2. stuff doesn't persist eg orientation change score and time will die
         public void bind(final Card card, final int position) {
             // Show image only if card has been flipped or is matched.
             if (card.isFlipped || card.isMatched) {
@@ -80,7 +83,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                                 if (GameActivity.selectedCard != null && GameActivity.selectedCard.image == card.image) {
                                     GameActivity.selectedCard.isMatched = true;
                                     card.isMatched = true;
-                                    ((GameActivity) cardImage.getContext()).incrementScore();
+                                    ((GameActivity) cardImage.getContext()).updateScore();
                                 }
 
                                 // No match found, flip it back

@@ -30,20 +30,25 @@ public class GameActivity extends AppCompatActivity {
 
 
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        //For testing
-        //int[] cardImages = {R.drawable.image1};
+        setCardImages();
 
+        timerChronometer = findViewById(R.id.timer_view);
+        scoreCounter = findViewById(R.id.score_counter);
+
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        adapter = new CardsAdapter(cards);
+        recyclerView.setAdapter(adapter);
+    }
+
+    protected void setCardImages(){
         // TODO: replace with downloaded images somehow
-        int[] cardImages = {R.drawable.image1, R.drawable.image2, R.drawable.image3,
-                R.drawable.image4, R.drawable.image5, R.drawable.image6};
+        int[] cardImages = {R.drawable.image1, R.drawable.image2, R.drawable.image3, R.drawable.image4, R.drawable.image5, R.drawable.image6};
 
         // Add each image twice
         cards = new ArrayList<>();
@@ -52,30 +57,16 @@ public class GameActivity extends AppCompatActivity {
             cards.add(new Card(cardImage));
         }
         Collections.shuffle(cards);
-
-        scoreCounter = findViewById(R.id.score_counter);
-        updateScore();
-
-        recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new CardsAdapter(cards);
-        recyclerView.setAdapter(adapter);
     }
 
-    public void incrementScore() {
+    public void updateScore() {
         score++;
-        updateScore();
-    }
-    private void updateScore() {
         scoreCounter.setText("Score: " + score + "/6");
         checkGameOver();
     }
 
-
-
     public void startTimer() {
         if (!isGameStarted) {
-            timerChronometer = findViewById(R.id.timer_view);
             timerChronometer.setBase(SystemClock.elapsedRealtime());
             timerChronometer.start();
             isGameStarted = true;
@@ -84,7 +75,8 @@ public class GameActivity extends AppCompatActivity {
     public void checkGameOver() {
         if (score == 6) {
             timerChronometer.stop();
-            // Show game over dialog or something
+
+            // TODO: do a popup or something with time elapsed
             Toast.makeText(this,"You won!", Toast.LENGTH_LONG).show();
         }
     }
