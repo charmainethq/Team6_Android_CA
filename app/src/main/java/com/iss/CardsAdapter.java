@@ -48,7 +48,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         // 2. stuff doesn't persist eg orientation change score and time will die
         public void bind(final Card card, final int position) {
             // Show image only if card has been flipped or is matched.
-            if (card.isFlipped || card.isMatched) {
+            if (card.getFlipped() || card.getMatched()) {
                 cardImage.setImageResource(card.image);
             } else {
                 cardImage.setImageResource(R.drawable.back_image);
@@ -61,28 +61,29 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                     if (!((GameActivity) cardImage.getContext()).isGameStarted) {
                         ((GameActivity) cardImage.getContext()).startTimer();
                     }
+
                     // Handle first click on unflipped card
-                    if (!card.isFlipped && !card.isMatched && GameActivity.selectedCard == null) {
+                    if (!card.getFlipped() && !card.getMatched() && GameActivity.selectedCard == null) {
                         GameActivity.selectedCard = card;
-                        card.isFlipped = true;
+                        card.setFlipped(true);
 
                         notifyDataSetChanged();
                     }
 
                     // Handle second click on unflipped card
-                    else if (!card.isFlipped && !card.isMatched && GameActivity.selectedCard != null) {
+                    else if (!card.getFlipped() && !card.getMatched() && GameActivity.selectedCard != null) {
                         // Second click on a different placeholder
-                        card.isFlipped = true;
-                        notifyDataSetChanged();
+                        card.setFlipped(true);
+                        notifyDataSetChanged(); //TODO: not sure if this is the best option
 
                         // Introduce delay so it doesn't immediately flip
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                // Match found, set to matched
+                                // Match found, set to matched and update the score
                                 if (GameActivity.selectedCard != null && GameActivity.selectedCard.image == card.image) {
-                                    GameActivity.selectedCard.isMatched = true;
-                                    card.isMatched = true;
+                                    GameActivity.selectedCard.setMatched(true);
+                                    card.setMatched(true);
                                     ((GameActivity) cardImage.getContext()).updateScore();
                                 }
 
@@ -90,9 +91,9 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                                 else {
                                     // null handler
                                     if (GameActivity.selectedCard != null) {
-                                        GameActivity.selectedCard.isFlipped = false;
+                                        GameActivity.selectedCard.setFlipped(false);
                                     }
-                                    card.isFlipped = false;
+                                    card.setFlipped(false);
                                 }
                                 GameActivity.selectedCard = null;
                                 notifyDataSetChanged();

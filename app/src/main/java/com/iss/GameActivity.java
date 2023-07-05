@@ -36,14 +36,11 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         setCardImages();
+        setRecyclerView();
 
         timerChronometer = findViewById(R.id.timer_view);
         scoreCounter = findViewById(R.id.score_counter);
 
-        recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new CardsAdapter(cards);
-        recyclerView.setAdapter(adapter);
     }
 
     protected void setCardImages(){
@@ -57,6 +54,13 @@ public class GameActivity extends AppCompatActivity {
             cards.add(new Card(cardImage));
         }
         Collections.shuffle(cards);
+    }
+
+    private void setRecyclerView(){
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        adapter = new CardsAdapter(cards);
+        recyclerView.setAdapter(adapter);
     }
 
     public void updateScore() {
