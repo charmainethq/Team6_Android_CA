@@ -63,26 +63,27 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                     }
 
                     // Handle first click on unflipped card
-                    if (!card.getFlipped() && !card.getMatched() && GameActivity.selectedCard == null) {
-                        GameActivity.selectedCard = card;
+                    if (!card.getFlipped() && !card.getMatched() && GameActivity.firstCard == null) {
+                        // Set the first card and flip it
+                        GameActivity.firstCard = card;
                         card.setFlipped(true);
 
                         notifyDataSetChanged();
                     }
 
                     // Handle second click on unflipped card
-                    else if (!card.getFlipped() && !card.getMatched() && GameActivity.selectedCard != null) {
-                        // Second click on a different placeholder
+                    else if (!card.getFlipped() && !card.getMatched() && GameActivity.firstCard != null) {
+                        // Immediately flip the second card
                         card.setFlipped(true);
                         notifyDataSetChanged(); //TODO: not sure if this is the best option
 
-                        // Introduce delay so it doesn't immediately flip
+
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 // Match found, set to matched and update the score
-                                if (GameActivity.selectedCard != null && GameActivity.selectedCard.image == card.image) {
-                                    GameActivity.selectedCard.setMatched(true);
+                                if (GameActivity.firstCard != null && GameActivity.firstCard.image == card.image) {
+                                    GameActivity.firstCard.setMatched(true);
                                     card.setMatched(true);
                                     ((GameActivity) cardImage.getContext()).updateScore();
                                 }
@@ -90,12 +91,12 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                                 // No match found, flip it back
                                 else {
                                     // null handler
-                                    if (GameActivity.selectedCard != null) {
-                                        GameActivity.selectedCard.setFlipped(false);
+                                    if (GameActivity.firstCard != null) {
+                                        GameActivity.firstCard.setFlipped(false);
                                     }
                                     card.setFlipped(false);
                                 }
-                                GameActivity.selectedCard = null;
+                                GameActivity.firstCard = null;
                                 notifyDataSetChanged();
                             }
                         }, 1000); // Adjust the delay time as needed (e.g., 1000 milliseconds = 1 second)

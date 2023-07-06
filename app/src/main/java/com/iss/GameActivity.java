@@ -20,7 +20,7 @@ public class GameActivity extends AppCompatActivity {
     private CardsAdapter adapter;
 
     public List<Card> cards;
-    public static Card selectedCard = null;
+    public static Card firstCard = null;
     private TextView scoreCounter;
     private int score = 0;
 
