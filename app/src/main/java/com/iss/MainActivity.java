@@ -1,4 +1,5 @@
 package com.iss;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> imageUrls;
     private Thread downloadThread;
 
+    private TextView progressText;
+    private int count;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         fetchButton = findViewById(R.id.fetchButton);
         gridView = findViewById(R.id.gridView);
         progressBar = findViewById(R.id.progressBar);
+        progressText = findViewById(R.id.progressText);
 
         fetchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,11 +101,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.VISIBLE);
+                        progressText.setText("Downloading 0 of 20 images");
                     }
                 });
 
                 imageUrls = new ArrayList<>();
-                int count = 0;
+                count = 0;
 
                 try {
                     Document doc = Jsoup.connect(url).get();
@@ -118,6 +126,15 @@ public class MainActivity extends AppCompatActivity {
                             downloadImage(imageUrl);
                             count++;
 
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressText.setText("Downloading " + count + " of 20 images");
+                                    progressBar.setProgress(count);
+                                    gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
+                                }
+                            });
+
                             // Break the loop after downloading 20 images
                             if (count >= 20) {
                                 break;
@@ -127,13 +144,10 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        progressBar.setVisibility(View.GONE);
-                        gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
-                        Toast.makeText(MainActivity.this, "Images downloaded: " + imageUrls.size(), Toast.LENGTH_SHORT).show();
+                        progressText.setText("Downloaded " + count + " of 20 images");
                     }
                 });
             }

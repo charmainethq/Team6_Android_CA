@@ -19,7 +19,6 @@ public class ImageAdapter extends BaseAdapter {
         this.context = context;
         this.imageUrls = imageUrls;
     }
-
     @Override
     public int getCount() {
         return imageUrls.size();
