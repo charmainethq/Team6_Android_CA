@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -96,7 +97,7 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        rec.sort(Comparator.reverseOrder());
+        Collections.sort(rec);
         return rec.subList(0, Math.min(rec.size(), 5)).toArray(new Integer[0]);
     }
 
