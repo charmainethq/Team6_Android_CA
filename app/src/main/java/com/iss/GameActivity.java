@@ -120,7 +120,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             // TODO: do a popup or something with time elapsed
             Toast.makeText(this,"You won!", Toast.LENGTH_LONG).show();
 
-            if(timerChronometer.getDrawingTime() < MaxScore){
+            if((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000 < MaxScore){
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 View dialogView = getLayoutInflater().inflate(R.layout.new_record, null);
                 builder.setView(dialogView);
