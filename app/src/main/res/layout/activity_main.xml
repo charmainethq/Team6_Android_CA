@@ -1,45 +1,61 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     android:paddingBottom="16dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
+    android:background="@drawable/bg"
     tools:context=".MainActivity">
 
     <EditText
         android:id="@+id/urlEditText"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:hint="Enter URL" />
+        android:layout_marginTop="10dp"
+        android:hint="https://" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/fetchButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/urlEditText"
-        android:layout_marginTop="16dp"
-        android:text="Fetch" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fetchButton"
-        android:layout_marginTop="16dp"
-        android:indeterminate="false"
-        android:max="20"
-        android:visibility="gone" />
+        android:layout_toRightOf="@id/urlEditText"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/blue"
+        android:text="Fetch" />
 
     <GridView
         android:id="@+id/gridView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/progressBar"
-        android:layout_marginTop="16dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fetchButton"
+        android:layout_marginTop="14dp"
+        android:horizontalSpacing="16dp"
         android:numColumns="4"
-        android:verticalSpacing="16dp"
-        android:horizontalSpacing="16dp" />
+        android:verticalSpacing="16dp" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="36dp"
+        android:max="20"
+        android:progress="0"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/progressBar"
+        android:layout_marginTop="-38dp"
+        android:gravity="center"
+        android:text="Downloading 0 of 20 images"
+        android:textSize="16dp" />
 
 </RelativeLayout>
