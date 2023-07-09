@@ -60,21 +60,18 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
             gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
-            // Hide the progress bar and handle other UI updates...
-            hideProgress();
+
         }
     };
 
     private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            imageUrls = intent.getStringArrayListExtra("imageUrls"); // <-- Add this line
-            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
-
-            // Hide the progress bar and handle other UI updates...
-            hideProgress();
+            int count = intent.getIntExtra("count", 0);
+            updateProgress(count);
         }
     };
+
 
 
     @Override
