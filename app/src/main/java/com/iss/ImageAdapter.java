@@ -8,25 +8,27 @@ import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class ImageAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<String> imageUrls;
+    private ArrayList<String> imagePaths;
 
-    public ImageAdapter(Context context, ArrayList<String> imageUrls) {
+    public ImageAdapter(Context context, ArrayList<String> imagePaths) {
         this.context = context;
-        this.imageUrls = imageUrls;
+        this.imagePaths = imagePaths;
     }
+
     @Override
     public int getCount() {
-        return imageUrls.size();
+        return imagePaths.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return imageUrls.get(position);
+        return imagePaths.get(position);
     }
 
     @Override
@@ -45,7 +47,8 @@ public class ImageAdapter extends BaseAdapter {
             imageView = (ImageView) convertView;
         }
 
-        Picasso.get().load(imageUrls.get(position)).into(imageView);
+        File file = new File(imagePaths.get(position));
+        Picasso.get().load(file).into(imageView);
         return imageView;
     }
 }

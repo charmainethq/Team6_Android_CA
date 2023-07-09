@@ -4,6 +4,7 @@
     android:layout_margin="8dp">
 
     <ImageView
+
         android:id="@+id/card_image"
         android:layout_width="80dp"
         android:layout_height="80dp"

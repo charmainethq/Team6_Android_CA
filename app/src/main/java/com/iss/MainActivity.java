@@ -1,15 +1,20 @@
 package com.iss;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView progressText;
     private int count;
 
+    private ArrayList<String> selectedImageUrls;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +77,9 @@ public class MainActivity extends AppCompatActivity {
                             ContextCompat.checkSelfPermission(MainActivity.this,
                                     Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         // Permissions are already granted, proceed with the download
+                        hideKeyboard();
                         downloadImages(url);
+
                     } else {
                         // Request permissions from the user
                         ActivityCompat.requestPermissions(MainActivity.this,
@@ -80,13 +89,54 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(MainActivity.this, "Please enter a URL", Toast.LENGTH_SHORT).show();
                 }
+
+                selectedImageUrls = new ArrayList<>();
+
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        ImageView imageView = (ImageView) view; // Assuming that the GridView items are ImageViews
+                        String selectedImageUrl = imageUrls.get(position);
+
+                        if (selectedImageUrls.contains(selectedImageUrl)) {
+                            // The image is already selected, so deselect it
+                            selectedImageUrls.remove(selectedImageUrl);
+                            imageView.setBackgroundResource(0); // Remove the border
+                        } else if (selectedImageUrls.size() < 6) { // Allow up to 6 images to be selected
+                            // The image is not selected, so select it
+                            selectedImageUrls.add(selectedImageUrl);
+                            // TODO: Add borders
+                        }
+
+                        Toast.makeText(MainActivity.this, "Selected " + selectedImageUrls.size() + " of 6 images", Toast.LENGTH_SHORT).show();
+
+
+                        if (selectedImageUrls.size() == 6) {
+                            // When 6 images have been selected, launch GameActivity
+                            launchGameActivity(view);
+                        }
+                    }
+
+                });
+
             }
         });
     }
 
     public void launchGameActivity(View view) {
         Intent intent = new Intent(this, GameActivity.class);
+        intent.putStringArrayListExtra("SelectedImages", selectedImageUrls);
         startActivity(intent);
+    }
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
     }
 
     private void downloadImages(final String url) {
@@ -122,8 +172,8 @@ public class MainActivity extends AppCompatActivity {
                         int minWidth = 500;
                         int minHeight = 500;
                         if (isImageDimensionsValid(imageUrl, minWidth, minHeight)) {
-                            imageUrls.add(imageUrl);
-                            downloadImage(imageUrl);
+                            String imagePath = downloadImage(imageUrl); // this now returns the file path
+                            imageUrls.add(imagePath); // save the file path instead of the URL
                             count++;
 
                             runOnUiThread(new Runnable() {
@@ -141,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -196,11 +247,12 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void downloadImage(String imageUrl) {
+    private String downloadImage(String imageUrl) {
+        String filePath = null;
         try {
             URL url = new URL(imageUrl);
             String fileName = sanitizeFileName(url.getFile());
-            String newFileName = "game2_" + fileName + ".jpg"; // Add the prefix
+            String newFileName = "game_" + fileName + ".jpg"; // Add the prefix
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
@@ -208,6 +260,8 @@ public class MainActivity extends AppCompatActivity {
 
             InputStream input = connection.getInputStream();
             File file = new File(getExternalFilesDir(null), newFileName); // Use the new file name
+            filePath = file.getAbsolutePath();
+
             FileOutputStream output = new FileOutputStream(file);
 
             byte[] buffer = new byte[4096];
@@ -220,7 +274,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return filePath;
     }
+
 
     private String sanitizeFileName(String fileName) {
         // Remove invalid characters from the file name
