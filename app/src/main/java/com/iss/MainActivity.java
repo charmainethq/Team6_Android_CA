@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+
+import android.os.Handler;
+import android.util.Log;
+
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -41,13 +45,29 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            progressText.setText("Downloaded " + count + " of 20 images");
+
+            ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
+            int count = intent.getIntExtra("count", 0);
+            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
+            // if count above 20, show download completed and hide progress bar
+            if(count >= 20){
+                downloadCompleted(count);
+                // Hide download progress bar after download completed
+                // Delayed for 3 seconds to let 20 images load onto grid view
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        hideProgress();
+                    }
+                }, 2000); // 2s = 2000ms
+            }
         }
     };
 
     private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
             count = intent.getIntExtra("count", 0);
             updateProgress(count);
@@ -183,6 +203,12 @@ public class MainActivity extends AppCompatActivity {
         if (count == 20) {
             Toast.makeText(MainActivity.this, "Download complete", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // download completed bar
+    private void downloadCompleted(int count) {
+        progressText.setText("Finished downloading 20 images");
+        progressBar.setProgress(count);
     }
 
 
