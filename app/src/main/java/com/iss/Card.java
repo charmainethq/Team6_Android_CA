@@ -1,14 +1,10 @@
 package com.iss;
 
 public class Card {
-    public int image; // for drawable implementation, to be removed
-    Card(int image) {
-        this.image = image;
-    } // for drawable implementation, to be removed
-
     private String imagePath;
     private boolean isFlipped = false;
     private boolean isMatched = false;
+
 
     public Card(String imagePath) {
         this.imagePath = imagePath;

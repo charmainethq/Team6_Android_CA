@@ -1,5 +1,7 @@
 package com.iss;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +10,18 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
+import java.io.File;
 import java.util.List;
 
 public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHolder> {
     private List<Card> cards;
+    private Context context;
 
-    public CardsAdapter(List<Card> cards) {
+    public CardsAdapter(List<Card> cards, Context context) {
         this.cards = cards;
+        this.context = context;
     }
 
     @NonNull
@@ -49,7 +56,9 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         public void bind(final Card card, final int position) {
             // Show image only if card has been flipped or is matched.
             if (card.getFlipped() || card.getMatched()) {
-                cardImage.setImageResource(card.image);
+                Glide.with(context)
+                        .load(new File(card.getImagePath()))
+                        .into(cardImage);
             } else {
                 cardImage.setImageResource(R.drawable.back_image);
             }
@@ -82,7 +91,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                             @Override
                             public void run() {
                                 // Match found, set to matched and update the score
-                                if (GameActivity.firstCard != null && GameActivity.firstCard.image == card.image) {
+                                if (GameActivity.firstCard != null && GameActivity.firstCard.getImagePath().equals(card.getImagePath())) {
                                     GameActivity.firstCard.setMatched(true);
                                     card.setMatched(true);
                                     ((GameActivity) cardImage.getContext()).updateScore();
