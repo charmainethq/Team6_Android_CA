@@ -91,6 +91,7 @@ public class DownloadService extends Service {
                         }
                     }
 
+
                     if (imageUrls.isEmpty()) {
                         sendErrorBroadcast("No images of suitable dimensions found at the provided URL.");
                         return;
