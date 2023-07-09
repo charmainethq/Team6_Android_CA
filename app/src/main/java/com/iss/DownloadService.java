@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DownloadService extends Service {
@@ -67,8 +66,8 @@ public class DownloadService extends Service {
                         String imageUrl = imgElement.absUrl("src");
                         Log.d("tag", imageUrl);
 
-                        int minWidth = 500;
-                        int minHeight = 500;
+                        int minWidth = 350;
+                        int minHeight = 280;
                         if (isImageDimensionsValid(imageUrl, minWidth, minHeight)) {
                             String imagePath = downloadImage(imageUrl);
                             imageUrls.add(imagePath);
@@ -107,9 +106,12 @@ public class DownloadService extends Service {
 
     private boolean isImageDimensionsValid(String imageUrl, int minWidth, int minHeight) {
         try {
+            String encodedUrl = URLEncoder.encode(imageUrl, "UTF-8");
             URL url = new URL(imageUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
+            connection.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.28) Gecko/20120306 Firefox/3.6.28");
             connection.connect();
 
             InputStream input = connection.getInputStream();
@@ -118,7 +120,7 @@ public class DownloadService extends Service {
             BitmapFactory.decodeStream(input, null, options);
             int imageWidth = options.outWidth;
             int imageHeight = options.outHeight;
-
+            Log.d("Image Dimensions", "Width: " + imageWidth + ", Height: " + imageHeight);
             // Check if the image dimensions meet the criteria
             if (imageWidth >= minWidth && imageHeight >= minHeight) {
                 return true;
@@ -127,7 +129,6 @@ public class DownloadService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return false;
     }
 
@@ -140,6 +141,8 @@ public class DownloadService extends Service {
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
+            connection.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.28) Gecko/20120306 Firefox/3.6.28");
             connection.connect();
 
             InputStream input = connection.getInputStream();
