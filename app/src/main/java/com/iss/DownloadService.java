@@ -24,6 +24,9 @@ public class DownloadService extends Service {
 
     public static final String DOWNLOAD_COMPLETE = "com.iss.DOWNLOAD_COMPLETE";
     public static final String PROGRESS_UPDATE = "com.iss.PROGRESS_UPDATE";
+    public static final String ACTION_DOWNLOAD_ERROR = "com.iss.ACTION_DOWNLOAD_ERROR";
+    public static final String EXTRA_ERROR_MESSAGE = "com.iss.EXTRA_ERROR_MESSAGE";
+
 
 
     private ArrayList<String> imageUrls;
@@ -59,6 +62,11 @@ public class DownloadService extends Service {
                     Document doc = Jsoup.connect(url).get();
                     Elements imgElements = doc.select("img");
 
+                    if (imgElements.isEmpty()) {
+                        sendErrorBroadcast("No images found at the provided URL.");
+                        return;
+                    }
+
                     for (Element imgElement : imgElements) {
                         if (Thread.currentThread().isInterrupted()) {
                             return;
@@ -83,12 +91,19 @@ public class DownloadService extends Service {
                         }
                     }
 
+
+                    if (imageUrls.isEmpty()) {
+                        sendErrorBroadcast("No images of suitable dimensions found at the provided URL.");
+                        return;
+                    }
+
                     Intent completeIntent = new Intent(DOWNLOAD_COMPLETE);
                     completeIntent.putExtra("count", count);
                     completeIntent.putStringArrayListExtra("imageUrls", imageUrls);
                     sendBroadcast(completeIntent);
 
                 } catch (IOException e) {
+                    sendErrorBroadcast("Failed to connect to the provided URL.");
                     e.printStackTrace();
                 }
             }
@@ -96,6 +111,13 @@ public class DownloadService extends Service {
 
         downloadThread.start();
     }
+
+    private void sendErrorBroadcast(String errorMessage) {
+        Intent errorIntent = new Intent(ACTION_DOWNLOAD_ERROR);
+        errorIntent.putExtra(EXTRA_ERROR_MESSAGE, errorMessage);
+        sendBroadcast(errorIntent);
+    }
+
 
     private void updateProgress(int count) {
         Intent progressIntent = new Intent(PROGRESS_UPDATE);
