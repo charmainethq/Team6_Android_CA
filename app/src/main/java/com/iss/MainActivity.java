@@ -6,12 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+
 import android.os.Handler;
 import android.util.Log;
+
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -27,31 +27,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PERMISSION = 123;
-
     private EditText urlEditText;
     private Button fetchButton;
     private GridView gridView;
     private ProgressBar progressBar;
-
     private ArrayList<String> imageUrls;
     private Thread downloadThread;
-
     private TextView progressText;
     private int count;
 
@@ -59,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+
             ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
             int count = intent.getIntExtra("count", 0);
             gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
@@ -80,18 +67,13 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // missing imageUrls that caused app to crash when selecting image
-            // please delete this comment after merging to main
-            imageUrls = intent.getStringArrayListExtra("imageUrls");
-            // set images to grid view
-            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
-            // get the count and update the download progress bar
-            int count = intent.getIntExtra("count", 0);
+
+            ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
+            count = intent.getIntExtra("count", 0);
             updateProgress(count);
+            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
         }
     };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,13 +86,11 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         progressText = findViewById(R.id.progressText);
 
-
         IntentFilter completeFilter = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
         registerReceiver(completeReceiver, completeFilter);
 
         IntentFilter progressFilter = new IntentFilter(DownloadService.PROGRESS_UPDATE);
         registerReceiver(progressReceiver, progressFilter);
-
 
         fetchButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,15 +137,12 @@ public class MainActivity extends AppCompatActivity {
 
                         Toast.makeText(MainActivity.this, "Selected " + selectedImageUrls.size() + " of 6 images", Toast.LENGTH_SHORT).show();
 
-
                         if (selectedImageUrls.size() == 6) {
                             // When 6 images have been selected, launch GameActivity
                             launchGameActivity(view);
                         }
                     }
-
                 });
-
             }
         });
     }
@@ -184,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -198,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -225,6 +200,9 @@ public class MainActivity extends AppCompatActivity {
     private void updateProgress(int count) {
         progressText.setText("Downloading " + count + " of 20 images");
         progressBar.setProgress(count);
+        if (count == 20) {
+            Toast.makeText(MainActivity.this, "Download complete", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // download completed bar
