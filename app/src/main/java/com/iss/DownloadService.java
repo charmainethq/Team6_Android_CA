@@ -70,14 +70,12 @@ public class DownloadService extends Service {
                         int minWidth = 500;
                         int minHeight = 500;
                         if (isImageDimensionsValid(imageUrl, minWidth, minHeight)) {
-                            String imagePath = downloadImage(imageUrl); // this now returns the file path
-                            imageUrls.add(imagePath); // save the file path instead of the URL
+                            String imagePath = downloadImage(imageUrl);
+                            imageUrls.add(imagePath);
                             count++;
 
-                            Intent progressIntent = new Intent(PROGRESS_UPDATE);
-                            progressIntent.putExtra("count", count);
-                            progressIntent.putExtra("imageUrls", imageUrls);
-                            sendBroadcast(progressIntent);
+                            // Update the progress
+                            updateProgress(count);
 
                             // Break the loop after downloading 20 images
                             if (count >= 20) {
@@ -97,6 +95,13 @@ public class DownloadService extends Service {
         });
 
         downloadThread.start();
+    }
+
+    private void updateProgress(int count) {
+        Intent progressIntent = new Intent(PROGRESS_UPDATE);
+        progressIntent.putStringArrayListExtra("imageUrls", imageUrls); // Add this line
+        progressIntent.putExtra("count", count);
+        sendBroadcast(progressIntent);
     }
 
     private boolean isImageDimensionsValid(String imageUrl, int minWidth, int minHeight) {
