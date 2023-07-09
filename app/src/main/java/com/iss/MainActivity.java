@@ -73,6 +73,15 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver errorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String errorMessage = intent.getStringExtra(DownloadService.EXTRA_ERROR_MESSAGE);
+            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+        }
+    };
+
+
     private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -108,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
 
         IntentFilter progressFilter = new IntentFilter(DownloadService.PROGRESS_UPDATE);
         registerReceiver(progressReceiver, progressFilter);
+
+        IntentFilter errorFilter = new IntentFilter(DownloadService.ACTION_DOWNLOAD_ERROR);
+        registerReceiver(errorReceiver, errorFilter);
 
         fetchButton.setOnClickListener(new View.OnClickListener() {
             @Override
