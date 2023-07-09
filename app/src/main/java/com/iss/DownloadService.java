@@ -85,6 +85,7 @@ public class DownloadService extends Service {
                     }
 
                     Intent completeIntent = new Intent(DOWNLOAD_COMPLETE);
+                    completeIntent.putExtra("count", count);
                     completeIntent.putStringArrayListExtra("imageUrls", imageUrls);
                     sendBroadcast(completeIntent);
 
