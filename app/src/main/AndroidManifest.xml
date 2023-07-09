@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Team6_Android_CA"
         tools:targetApi="31">
+
+        <service android:name=".DownloadService" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
