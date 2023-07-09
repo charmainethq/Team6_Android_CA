@@ -1,8 +1,10 @@
 package com.iss;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -53,6 +55,26 @@ public class MainActivity extends AppCompatActivity {
     private int count;
 
     private ArrayList<String> selectedImageUrls;
+    private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
+            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
+            // Hide the progress bar and handle other UI updates...
+            hideProgress();
+        }
+    };
+
+    private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            imageUrls = intent.getStringArrayListExtra("imageUrls"); // <-- Add this line
+            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
+
+            // Hide the progress bar and handle other UI updates...
+            hideProgress();
+        }
+    };
 
 
     @Override
@@ -66,6 +88,14 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         progressText = findViewById(R.id.progressText);
 
+
+        IntentFilter completeFilter = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
+        registerReceiver(completeReceiver, completeFilter);
+
+        IntentFilter progressFilter = new IntentFilter(DownloadService.PROGRESS_UPDATE);
+        registerReceiver(progressReceiver, progressFilter);
+
+
         fetchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                                     Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         // Permissions are already granted, proceed with the download
                         hideKeyboard();
-                        downloadImages(url);
+                        startDownload(url);
 
                     } else {
                         // Request permissions from the user
@@ -139,81 +169,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void downloadImages(final String url) {
-        if (downloadThread != null && downloadThread.isAlive()) {
-            downloadThread.interrupt();
-        }
-
-        downloadThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.VISIBLE);
-                        progressText.setText("Downloading 0 of 20 images");
-                    }
-                });
-
-                imageUrls = new ArrayList<>();
-                count = 0;
-
-                try {
-                    Document doc = Jsoup.connect(url).get();
-                    Elements imgElements = doc.select("img");
-
-                    for (Element imgElement : imgElements) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            return;
-                        }
-                        String imageUrl = imgElement.absUrl("src");
-                        Log.d("tag", imageUrl);
-
-                        int minWidth = 500;
-                        int minHeight = 500;
-                        if (isImageDimensionsValid(imageUrl, minWidth, minHeight)) {
-                            String imagePath = downloadImage(imageUrl); // this now returns the file path
-                            imageUrls.add(imagePath); // save the file path instead of the URL
-                            count++;
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    progressText.setText("Downloading " + count + " of 20 images");
-                                    progressBar.setProgress(count);
-                                    gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
-                                }
-                            });
-
-                            // Break the loop after downloading 20 images
-                            if (count >= 20) {
-                                break;
-                            }
-                        }
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressText.setText("Downloaded " + count + " of 20 images");
-                    }
-                });
-            }
-        });
-
-        downloadThread.start();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, proceed with the download
-                downloadImages(urlEditText.getText().toString());
+                startDownload(urlEditText.getText().toString());
             } else {
                 // Permission denied
                 Toast.makeText(MainActivity.this, "Permission denied", Toast.LENGTH_SHORT).show();
@@ -221,66 +183,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean isImageDimensionsValid(String imageUrl, int minWidth, int minHeight) {
-        try {
-            URL url = new URL(imageUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-
-            InputStream input = connection.getInputStream();
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(input, null, options);
-            int imageWidth = options.outWidth;
-            int imageHeight = options.outHeight;
-
-            // Check if the image dimensions meet the criteria
-            if (imageWidth >= minWidth && imageHeight >= minHeight) {
-                return true;
-            }
-            input.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return false;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(completeReceiver);
+        unregisterReceiver(progressReceiver);
     }
 
-    private String downloadImage(String imageUrl) {
-        String filePath = null;
-        try {
-            URL url = new URL(imageUrl);
-            String fileName = sanitizeFileName(url.getFile());
-            String newFileName = "game_" + fileName + ".jpg"; // Add the prefix
+    private void startDownload(final String url) {
+        showProgress();
+        Intent intent = new Intent(this, DownloadService.class);
+        intent.putExtra("url", url);
+        startService(intent);
+    }
 
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
+    private void showProgress() {
+        progressBar.setVisibility(View.VISIBLE);
+        progressText.setText("Downloading 0 of 20 images");
+    }
 
-            InputStream input = connection.getInputStream();
-            File file = new File(getExternalFilesDir(null), newFileName); // Use the new file name
-            filePath = file.getAbsolutePath();
+    private void hideProgress() {
+        progressBar.setVisibility(View.GONE);
+    }
 
-            FileOutputStream output = new FileOutputStream(file);
-
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = input.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
-            }
-            output.close();
-            input.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return filePath;
+    private void updateProgress(int count) {
+        progressText.setText("Downloading " + count + " of 20 images");
+        progressBar.setProgress(count);
     }
 
 
-    private String sanitizeFileName(String fileName) {
-        // Remove invalid characters from the file name
-        String sanitizedFileName = fileName.replaceAll("[^a-zA-Z0-9.-]", "_");
-        return sanitizedFileName;
-    }
 }
