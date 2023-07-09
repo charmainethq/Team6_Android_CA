@@ -47,13 +47,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText urlEditText;
     private Button fetchButton;
     private GridView gridView;
-    private ProgressBar progressBar;
+    private ProgressBar downloadBar;
 
     private ArrayList<String> imageUrls;
     private Thread downloadThread;
 
-    private TextView progressText;
+    private TextView downloadText;
     private int count;
+
+    private ProgressBar selectionBar;
+
+    private TextView selectionText;
 
     private ArrayList<String> selectedImageUrls;
     private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
@@ -70,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        hideProgress();
+                        hideDownload();
+                        showSelection();
                     }
                 }, 2000); // 2s = 2000ms
             }
@@ -87,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
             // get the count and update the download progress bar
             int count = intent.getIntExtra("count", 0);
-            updateProgress(count);
+            updateDownload(count);
         }
     };
 
@@ -101,9 +106,10 @@ public class MainActivity extends AppCompatActivity {
         urlEditText = findViewById(R.id.urlEditText);
         fetchButton = findViewById(R.id.fetchButton);
         gridView = findViewById(R.id.gridView);
-        progressBar = findViewById(R.id.progressBar);
-        progressText = findViewById(R.id.progressText);
-
+        downloadBar = findViewById(R.id.downloadBar);
+        downloadText = findViewById(R.id.downloadText);
+        selectionBar = findViewById(R.id.selectionBar);
+        selectionText = findViewById(R.id.selectionText);
 
         IntentFilter completeFilter = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
         registerReceiver(completeReceiver, completeFilter);
@@ -152,11 +158,13 @@ public class MainActivity extends AppCompatActivity {
                         } else if (selectedImageUrls.size() < 6) { // Allow up to 6 images to be selected
                             // The image is not selected, so select it
                             selectedImageUrls.add(selectedImageUrl);
-                            // TODO: Add borders
+                            // TODO: Image borders added but need fine tune image scaling
+                            imageView.setAdjustViewBounds(true);
+                            imageView.setBackgroundResource(R.drawable.border_selected);
                         }
 
-                        Toast.makeText(MainActivity.this, "Selected " + selectedImageUrls.size() + " of 6 images", Toast.LENGTH_SHORT).show();
-
+                        // update selection bar and text
+                        updateSelection(selectedImageUrls.size());
 
                         if (selectedImageUrls.size() == 6) {
                             // When 6 images have been selected, launch GameActivity
@@ -207,31 +215,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startDownload(final String url) {
-        showProgress();
+        showDownload();
         Intent intent = new Intent(this, DownloadService.class);
         intent.putExtra("url", url);
         startService(intent);
     }
 
-    private void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);
-        progressText.setText("Downloading 0 of 20 images");
+    private void showDownload() {
+        downloadBar.setVisibility(View.VISIBLE);
+        downloadText.setVisibility(View.VISIBLE);
+        downloadText.setText("Downloading 0 of 20 images");
     }
 
-    private void hideProgress() {
-        progressBar.setVisibility(View.GONE);
+    private void hideDownload() {
+        downloadBar.setVisibility(View.INVISIBLE);
+        downloadText.setVisibility(View.INVISIBLE);
     }
 
-    private void updateProgress(int count) {
-        progressText.setText("Downloading " + count + " of 20 images");
-        progressBar.setProgress(count);
+    private void updateDownload(int count) {
+        downloadText.setText("Downloading " + count + " of 20 images");
+        downloadBar.setProgress(count);
     }
 
     // download completed bar
     private void downloadCompleted(int count) {
-        progressText.setText("Finished downloading 20 images");
-        progressBar.setProgress(count);
+        downloadText.setText("Finished downloading 20 images");
+        downloadBar.setProgress(count);
     }
 
-
+    // Image selection progress bar and text
+    private void showSelection(){
+        selectionBar.setVisibility(View.VISIBLE);
+        selectionText.setVisibility(View.VISIBLE);
+        selectionText.setText("Selected 0 of 6 images");
+    }
+    private void updateSelection(int selected){
+        selectionBar.setProgress(selected);
+        selectionText.setText("Selected " + selected + " of 6 images");
+    }
 }
