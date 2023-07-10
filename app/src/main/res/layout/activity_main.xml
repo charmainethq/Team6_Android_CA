@@ -44,25 +44,26 @@
 
     <!-- consider adding a selection bar and text view for images selected-->
     <ProgressBar
-        android:id="@+id/selectionBar"
+        android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/selectionText"
+        android:layout_above="@+id/progressText"
         android:layout_marginBottom="36dp"
         android:max="6"
         android:progress="0"
         android:visibility="invisible"/>
 
     <TextView
-        android:id="@+id/selectionText"
+        android:id="@+id/progressText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/downloadBar"
-        android:layout_marginTop="-38dp"
+        android:layout_marginTop="-48dp"
         android:gravity="center"
         android:text="Selected 0 of 6 images"
         android:textSize="16dp"
+        android:fontFamily="@font/pixel_bold"
         android:visibility="invisible"/>
 
     <ProgressBar
@@ -81,9 +82,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/downloadBar"
-        android:layout_marginTop="-38dp"
+        android:layout_marginTop="-48dp"
         android:gravity="center"
         android:text="Downloading 0 of 20 images"
-        android:textSize="16dp" />
+        android:textSize="16dp"
+        android:fontFamily="@font/pixel_bold"
+        android:textColor="@color/black"/>
 
 </RelativeLayout>
