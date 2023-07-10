@@ -4,11 +4,8 @@ import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
-
 import android.os.Bundle;
 
 import android.os.Handler;
@@ -33,17 +30,26 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private MediaPlayer clickSoundPlayer;
 
     private static final int REQUEST_CODE_PERMISSION = 123;
     private EditText urlEditText;
     private Button fetchButton;
     private GridView gridView;
-    private ProgressBar progressBar;
+
+    private ProgressBar downloadBar;
+
     private ArrayList<String> imageUrls;
     private Thread downloadThread;
-    private TextView progressText;
+
+    private TextView downloadText;
+
     private int count;
+
+    private ProgressBar selectionBar;
+
+    private TextView selectionText;
+
+    private Button resultButton;
 
     private ArrayList<String> selectedImageUrls;
     private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
@@ -61,113 +67,129 @@ public class MainActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        hideProgress();
+                        hideDownload();
+                        showSelection();
                     }
                 }, 2000); // 2s = 2000ms
             }
         }
     };
 
+    private BroadcastReceiver errorReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String errorMessage = intent.getStringExtra(DownloadService.EXTRA_ERROR_MESSAGE);
+            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+        }
+    };
+
+
     private BroadcastReceiver progressReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
-            count = intent.getIntExtra("count", 0);
-            updateProgress(count);
+            // missing imageUrls that caused app to crash when selecting image
+            // please delete this comment after merging to main
+            imageUrls = intent.getStringArrayListExtra("imageUrls");
+            // set images to grid view
             gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
+            // get the count and update the download progress bar
+            int count = intent.getIntExtra("count", 0);
+            updateDownload(count);
+
         }
     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_main);
 
-        Button startBtn = findViewById(R.id.btnGame);
-        startBtn.setOnClickListener(new View.OnClickListener() {
+        urlEditText = findViewById(R.id.urlEditText);
+        fetchButton = findViewById(R.id.fetchButton);
+        gridView = findViewById(R.id.gridView);
+        resultButton = findViewById(R.id.btnResult);
+        downloadBar = findViewById(R.id.downloadBar);
+        downloadText = findViewById(R.id.downloadText);
+        selectionBar = findViewById(R.id.selectionBar);
+        selectionText = findViewById(R.id.selectionText);
+
+        IntentFilter completeFilter = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
+        registerReceiver(completeReceiver, completeFilter);
+
+        IntentFilter progressFilter = new IntentFilter(DownloadService.PROGRESS_UPDATE);
+        registerReceiver(progressReceiver, progressFilter);
+
+        IntentFilter errorFilter = new IntentFilter(DownloadService.ACTION_DOWNLOAD_ERROR);
+        registerReceiver(errorReceiver, errorFilter);
+
+        fetchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
-                clickSoundPlayer.setVolume(2.5f, 2.5f);
-                clickSoundPlayer.start();
-                // Start the main activity
-                setContentView(R.layout.activity_main);
+                String url = urlEditText.getText().toString();
+                if (!url.isEmpty()) {
+                    // Check if the app has the required permissions
+                    if (ContextCompat.checkSelfPermission(MainActivity.this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(MainActivity.this,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        // Permissions are already granted, proceed with the download
+                        hideKeyboard();
+                        startDownload(url);
 
-                urlEditText = findViewById(R.id.urlEditText);
-                fetchButton = findViewById(R.id.fetchButton);
-                gridView = findViewById(R.id.gridView);
-                progressBar = findViewById(R.id.progressBar);
-                progressText = findViewById(R.id.progressText);
+                    } else {
+                        // Request permissions from the user
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                                REQUEST_CODE_PERMISSION);
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "Please enter a URL", Toast.LENGTH_SHORT).show();
+                }
 
-                IntentFilter completeFilter = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
-                registerReceiver(completeReceiver, completeFilter);
+                selectedImageUrls = new ArrayList<>();
 
-                IntentFilter progressFilter = new IntentFilter(DownloadService.PROGRESS_UPDATE);
-                registerReceiver(progressReceiver, progressFilter);
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-                fetchButton.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
-                        clickSoundPlayer.setVolume(2.5f, 2.5f);
-                        clickSoundPlayer.start();
-                        String url = urlEditText.getText().toString();
-                        if (!url.isEmpty()) {
-                            // Check if the app has the required permissions
-                            if (ContextCompat.checkSelfPermission(MainActivity.this,
-                                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                                    ContextCompat.checkSelfPermission(MainActivity.this,
-                                            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                // Permissions are already granted, proceed with the download
-                                hideKeyboard();
-                                startDownload(url);
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        ImageView imageView = (ImageView) view; // Assuming that the GridView items are ImageViews
+                        String selectedImageUrl = imageUrls.get(position);
 
-                            } else {
-                                // Request permissions from the user
-                                ActivityCompat.requestPermissions(MainActivity.this,
-                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
-                                        REQUEST_CODE_PERMISSION);
-                            }
-                        } else {
-                            Toast.makeText(MainActivity.this, "Please enter a URL", Toast.LENGTH_SHORT).show();
+                        if (selectedImageUrls.contains(selectedImageUrl)) {
+                            // The image is already selected, so deselect it
+                            selectedImageUrls.remove(selectedImageUrl);
+                            imageView.setCropToPadding(false); // normalize padding
+                            imageView.setBackgroundResource(0); // Remove the border
+                        } else if (selectedImageUrls.size() < 6) { // Allow up to 6 images to be selected
+                            // The image is not selected, so select it
+                            selectedImageUrls.add(selectedImageUrl);
+                            // TODO: Image borders added but need fine tune image scaling
+                            imageView.setCropToPadding(true); // set padding for border to crop
+                            imageView.setBackgroundResource(R.drawable.border_selected);
                         }
 
-                        selectedImageUrls = new ArrayList<>();
 
-                        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        // update selection bar and text
+                        updateSelection(selectedImageUrls.size());
 
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                ImageView imageView = (ImageView) view; // Assuming that the GridView items are ImageViews
-                                clickSoundPlayer = MediaPlayer.create(view.getContext(), R.raw.smb_kick);
-                                clickSoundPlayer.setVolume(2.5f, 2.5f);
-                                clickSoundPlayer.start();
-                                String selectedImageUrl = imageUrls.get(position);
 
-                                if (selectedImageUrls.contains(selectedImageUrl)) {
-                                    // The image is already selected, so deselect it
-                                    selectedImageUrls.remove(selectedImageUrl);
-                                    imageView.setBackgroundResource(0); // Remove the border
-                                } else if (selectedImageUrls.size() < 6) { // Allow up to 6 images to be selected
-                                    // The image is not selected, so select it
-                                    selectedImageUrls.add(selectedImageUrl);
-                                    // TODO: Add borders
-                                }
-
-                                Toast.makeText(MainActivity.this, "Selected " + selectedImageUrls.size() + " of 6 images", Toast.LENGTH_SHORT).show();
-
-                                if (selectedImageUrls.size() == 6) {
-                                    // When 6 images have been selected, launch GameActivity
-                                    launchGameActivity(view);
-                                }
-                            }
-                        });
+                        if (selectedImageUrls.size() == 6) {
+                            // When 6 images have been selected, launch GameActivity
+                            launchGameActivity(view);
+                        }
                     }
                 });
             }
         });
 
+        resultButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,ResultActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void launchGameActivity(View view) {
@@ -205,33 +227,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startDownload(final String url) {
-        showProgress();
+        showDownload();
         Intent intent = new Intent(this, DownloadService.class);
         intent.putExtra("url", url);
         startService(intent);
     }
 
-    private void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);
-        progressText.setText("Downloading 0 of 20 images");
+    private void showDownload() {
+        downloadBar.setVisibility(View.VISIBLE);
+        downloadText.setVisibility(View.VISIBLE);
+        downloadText.setText("Downloading 0 of 20 images");
     }
 
-    private void hideProgress() {
-        progressBar.setVisibility(View.GONE);
+    private void hideDownload() {
+        downloadBar.setVisibility(View.INVISIBLE);
+        downloadText.setVisibility(View.INVISIBLE);
     }
 
-    private void updateProgress(int count) {
-        progressText.setText("Downloading " + count + " of 20 images");
-        progressBar.setProgress(count);
-        if (count == 20) {
-            Toast.makeText(MainActivity.this, "Download complete", Toast.LENGTH_SHORT).show();
-        }
+
+    private void updateDownload(int count) {
+        downloadText.setText("Downloading " + count + " of 20 images");
+        downloadBar.setProgress(count);
+
     }
 
     // download completed bar
     private void downloadCompleted(int count) {
-        progressText.setText("Finished downloading 20 images");
-        progressBar.setProgress(count);
+        downloadText.setText("Finished downloading 20 images");
+        downloadBar.setProgress(count);
     }
 
+    // Image selection progress bar and text
+    private void showSelection(){
+        selectionBar.setVisibility(View.VISIBLE);
+        selectionText.setVisibility(View.VISIBLE);
+        selectionText.setText("Selected 0 of 6 images");
+    }
+    private void updateSelection(int selected){
+        selectionBar.setProgress(selected);
+        selectionText.setText("Selected " + selected + " of 6 images");
+    }
 }

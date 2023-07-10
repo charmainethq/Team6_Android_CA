@@ -1,7 +1,6 @@
 package com.iss;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -153,6 +152,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 // show
                 dialog.show();
             }
+
+            // add 5 seconds delay before returning to main page
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
+                    startActivity(myIntent);
+                }
+            }, 5000); // 5s = 5000ms
 
         }
     }

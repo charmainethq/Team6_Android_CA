@@ -62,9 +62,7 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
         int id = v.getId();
 
         if (id == R.id.btnBack) {
-            // btn1 clicked
-            Intent intent = new Intent(this, GameActivity.class);
-            startActivity(intent);
+            onBackPressed();
         }
 
         if (id == R.id.btnClear) {

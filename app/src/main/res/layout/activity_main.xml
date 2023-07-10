@@ -42,7 +42,15 @@
         android:numColumns="4"
         android:verticalSpacing="16dp" />
 
-    <!-- consider adding a selection bar and text view for images selected-->
+    <Button
+        android:id="@+id/btnResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Records"
+        android:layout_above="@id/selectionBar"
+        android:layout_alignParentEnd="true"
+        />
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
