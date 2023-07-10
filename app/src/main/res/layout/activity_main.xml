@@ -42,26 +42,48 @@
         android:numColumns="4"
         android:verticalSpacing="16dp" />
 
+    <!-- consider adding a selection bar and text view for images selected-->
+    <ProgressBar
+        android:id="@+id/selectionBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/selectionText"
+        android:layout_marginBottom="36dp"
+        android:max="6"
+        android:progress="0"
+        android:visibility="invisible"/>
+
+    <TextView
+        android:id="@+id/selectionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/downloadBar"
+        android:layout_marginTop="-38dp"
+        android:gravity="center"
+        android:text="Selected 0 of 6 images"
+        android:textSize="16dp"
+        android:visibility="invisible"/>
+
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
+        android:id="@+id/downloadBar"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="36dp"
         android:max="20"
-        android:progress="0"/>
+        android:progress="0"
+        android:visibility="invisible"/>
 
     <TextView
-        android:id="@+id/progressText"
+        android:id="@+id/downloadText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/progressBar"
+        android:layout_below="@+id/downloadBar"
         android:layout_marginTop="-38dp"
         android:gravity="center"
         android:text="Downloading 0 of 20 images"
-        android:textSize="15dp"
-        android:textColor="@color/black"
-        android:fontFamily="@font/pixel_bold"/>
+        android:textSize="16dp" />
 
 </RelativeLayout>
