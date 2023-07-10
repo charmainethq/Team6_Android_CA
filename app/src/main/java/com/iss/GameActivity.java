@@ -3,7 +3,6 @@ package com.iss;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -20,20 +19,17 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener{
+public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private RecyclerView recyclerView;
     private CardsAdapter adapter;
 
@@ -95,7 +91,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void setRecyclerView(){
+    private void setRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         adapter = new CardsAdapter(cards, recyclerView, getApplicationContext());
@@ -117,6 +113,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             MaxScore = getMaxScore();
         }
     }
+
     public void checkGameOver() {
 
         if (score == 6) {
@@ -125,9 +122,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
 
             // TODO: do a popup or something with time elapsed
-            Toast.makeText(this,"You won!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "You won!", Toast.LENGTH_LONG).show();
 
-            if((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000 < MaxScore){
+            if ((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000 < MaxScore) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 View dialogView = getLayoutInflater().inflate(R.layout.new_record, null);
                 builder.setView(dialogView);
@@ -186,7 +183,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     BufferedReader br = new BufferedReader(isr);
                     String line;
                     while ((line = br.readLine()) != null) {
-                        if(Integer.parseInt(line) < value[0])
+                        if (Integer.parseInt(line) < value[0])
                             value[0] = Integer.parseInt(line);
                     }
                     br.close();
@@ -209,7 +206,32 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return value[0];
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        outState.putInt("score", score);
+        outState.putLong("timerBase", timerChronometer.getBase());
+        outState.putParcelableArrayList("cards", new ArrayList<>(cards));
+    }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
+        score = savedInstanceState.getInt("score");
+        long timerBase = savedInstanceState.getLong("timerBase");
+        if (timerBase > 0) {
+            timerChronometer.setBase(timerBase);
+            timerChronometer.start();
+            isGameStarted = true;
+        }
+        cards = savedInstanceState.getParcelableArrayList("cards");
+
+        scoreCounter.setText("Score: " + score + "/6");
+
+        adapter = new CardsAdapter(cards, getApplicationContext());
+        recyclerView.setAdapter(adapter);
+    }
+    
 }
