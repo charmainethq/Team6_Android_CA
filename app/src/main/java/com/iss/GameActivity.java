@@ -67,6 +67,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         SaveScore = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + "won_time" + ".txt");
 
+        Button btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
+                GameActivity.this.startActivity(myIntent);
+            }
+        });
     }
 
     @Override
