@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
@@ -47,6 +48,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private File SaveScore;
 
     private Integer MaxScore;
+
+    private ArrayList<String> selectedImageUrls;
     private MediaPlayer clickSoundPlayer;
     private MediaPlayer gameOverSoundPlayer;
 
@@ -55,6 +58,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
 
         setCardImages();
         setRecyclerView();
@@ -84,23 +88,24 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    protected void setCardImages(){
-        // TODO: replace with downloaded images somehow
-        int[] cardImages = {R.drawable.image1, R.drawable.image2, R.drawable.image3, R.drawable.image4, R.drawable.image5, R.drawable.image6};
+    protected void setCardImages() {
+        selectedImageUrls = getIntent().getStringArrayListExtra("SelectedImages");
+        Log.d("SelectedImages", selectedImageUrls.toString());
 
         // Add each image twice
         cards = new ArrayList<>();
-        for (int cardImage : cardImages) {
-            cards.add(new Card(cardImage));
-            cards.add(new Card(cardImage));
+        for (String selectedImagePath : selectedImageUrls) {
+            cards.add(new Card(selectedImagePath));
+            cards.add(new Card(selectedImagePath));
         }
         Collections.shuffle(cards);
     }
 
+
     private void setRecyclerView(){
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new CardsAdapter(cards, recyclerView);
+        adapter = new CardsAdapter(cards, recyclerView, getApplicationContext());
         recyclerView.setAdapter(adapter);
     }
 
