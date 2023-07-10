@@ -1,6 +1,7 @@
 package com.iss;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -46,7 +47,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private File SaveScore;
 
     private Integer MaxScore;
-
+    private MediaPlayer clickSoundPlayer;
+    private MediaPlayer gameOverSoundPlayer;
 
 
     @Override
@@ -60,6 +62,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         timerChronometer = findViewById(R.id.timer_view);
         scoreCounter = findViewById(R.id.score_counter);
 
+        gameOverSoundPlayer = MediaPlayer.create(this, R.raw.smb_stage_clear);
+
         Button btnResult = findViewById(R.id.btnResult);
         btnResult.setOnClickListener(this);
 
@@ -69,6 +73,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
+        clickSoundPlayer.setVolume(2.5f, 2.5f);
+        clickSoundPlayer.start();
+
         int id = v.getId();
         if (id == R.id.btnResult) {
             Intent intent = new Intent(this, ResultActivity.class);
@@ -92,7 +100,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void setRecyclerView(){
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new CardsAdapter(cards);
+        adapter = new CardsAdapter(cards, recyclerView);
         recyclerView.setAdapter(adapter);
     }
 
@@ -115,7 +123,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (score == 6) {
             timerChronometer.stop();
             saveTimeToFile((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000);
-
+            // Play the game over sound
+            gameOverSoundPlayer.start();
 
             // TODO: do a popup or something with time elapsed
             Toast.makeText(this,"You won!", Toast.LENGTH_LONG).show();
