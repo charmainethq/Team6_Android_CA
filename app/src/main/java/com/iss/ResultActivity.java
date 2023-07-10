@@ -72,6 +72,15 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // Navigate back to MainActivity
+        Intent intent = new Intent(ResultActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish(); // Finish the current activity
+    }
+
+
     private Integer[] getRecords(){
         final List<Integer> rec = new ArrayList<>();
         Thread thread = new Thread(new Runnable() {

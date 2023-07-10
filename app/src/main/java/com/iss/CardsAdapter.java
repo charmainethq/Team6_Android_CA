@@ -81,21 +81,10 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                     // Update the card's flipped state after the animation completes
                     cards.get(position).setFlipped(true);
                      notifyDataSetChanged();
-                     // loadCardImage(position);
+
                 }
             });
             animatorSet.start();
-        }
-
-        private void loadCardImage(int position) {
-            Card card = cards.get(position);
-            if (card.getFlipped() || card.getMatched()) {
-                Glide.with(context)
-                        .load(new File(card.getImagePath()))
-                        .into(cardImage);
-            } else {
-                cardImage.setImageResource(R.drawable.back_image);
-            }
         }
 
         private void flipBackCard(final int position) {
@@ -113,8 +102,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                     super.onAnimationEnd(animation);
                     cards.get(position).setFlipped(false);
                     notifyDataSetChanged();
-                    // loadCardImage(position);
-
                 }
             });
             animatorSet.start();
@@ -137,7 +124,10 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
 
                             @Override
                             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                flipCard(position);
+                                // Only flip the card if it's not already flipped or matched
+                                if (!card.getFlipped() && !card.getMatched()) {
+                                    flipCard(position);
+                                }
                                 return false;
                             }
                         })

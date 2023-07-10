@@ -68,8 +68,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         gameOverSoundPlayer = MediaPlayer.create(this, R.raw.smb_stage_clear);
 
-        Button btnResult = findViewById(R.id.btnResult);
-        btnResult.setOnClickListener(this);
 
         SaveScore = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + "won_time" + ".txt");
 
@@ -81,11 +79,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         clickSoundPlayer.setVolume(2.5f, 2.5f);
         clickSoundPlayer.start();
 
-        int id = v.getId();
-        if (id == R.id.btnResult) {
-            Intent intent = new Intent(this, ResultActivity.class);
-            startActivity(intent);
-        }
     }
 
     protected void setCardImages() {
@@ -98,7 +91,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             cards.add(new Card(selectedImagePath));
             cards.add(new Card(selectedImagePath));
         }
-        Collections.shuffle(cards);
+        //Collections.shuffle(cards);
     }
 
 
@@ -147,6 +140,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
+                        returnToMain();
                     }
                 });
 
@@ -154,7 +148,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.show();
             }
 
+            // add 5 seconds delay before returning to main page
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    returnToMain();
+                }
+            }, 5000);
+
         }
+    }
+
+    private void returnToMain(){
+        Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
+        startActivity(myIntent);
     }
 
     private void saveTimeToFile(long elapsedTime) {

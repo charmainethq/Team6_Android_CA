@@ -47,14 +47,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/score_counter" />
 
-    <Button
-        android:id="@+id/btnResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Records"
-        android:fontFamily="@font/pixel_bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
