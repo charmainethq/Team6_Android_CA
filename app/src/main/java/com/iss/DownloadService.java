@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,12 +17,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DownloadService extends Service {
 
     public static final String DOWNLOAD_COMPLETE = "com.iss.DOWNLOAD_COMPLETE";
     public static final String PROGRESS_UPDATE = "com.iss.PROGRESS_UPDATE";
+    public static final String ACTION_DOWNLOAD_ERROR = "com.iss.ACTION_DOWNLOAD_ERROR";
+    public static final String EXTRA_ERROR_MESSAGE = "com.iss.EXTRA_ERROR_MESSAGE";
+
 
 
     private ArrayList<String> imageUrls;
@@ -60,6 +62,11 @@ public class DownloadService extends Service {
                     Document doc = Jsoup.connect(url).get();
                     Elements imgElements = doc.select("img");
 
+                    if (imgElements.isEmpty()) {
+                        sendErrorBroadcast("No images found at the provided URL.");
+                        return;
+                    }
+
                     for (Element imgElement : imgElements) {
                         if (Thread.currentThread().isInterrupted()) {
                             return;
@@ -67,8 +74,8 @@ public class DownloadService extends Service {
                         String imageUrl = imgElement.absUrl("src");
                         Log.d("tag", imageUrl);
 
-                        int minWidth = 500;
-                        int minHeight = 500;
+                        int minWidth = 350;
+                        int minHeight = 280;
                         if (isImageDimensionsValid(imageUrl, minWidth, minHeight)) {
                             String imagePath = downloadImage(imageUrl);
                             imageUrls.add(imagePath);
@@ -84,12 +91,19 @@ public class DownloadService extends Service {
                         }
                     }
 
+
+                    if (imageUrls.isEmpty()) {
+                        sendErrorBroadcast("No images of suitable dimensions found at the provided URL.");
+                        return;
+                    }
+
                     Intent completeIntent = new Intent(DOWNLOAD_COMPLETE);
                     completeIntent.putExtra("count", count);
                     completeIntent.putStringArrayListExtra("imageUrls", imageUrls);
                     sendBroadcast(completeIntent);
 
                 } catch (IOException e) {
+                    sendErrorBroadcast("Failed to connect to the provided URL.");
                     e.printStackTrace();
                 }
             }
@@ -97,6 +111,13 @@ public class DownloadService extends Service {
 
         downloadThread.start();
     }
+
+    private void sendErrorBroadcast(String errorMessage) {
+        Intent errorIntent = new Intent(ACTION_DOWNLOAD_ERROR);
+        errorIntent.putExtra(EXTRA_ERROR_MESSAGE, errorMessage);
+        sendBroadcast(errorIntent);
+    }
+
 
     private void updateProgress(int count) {
         Intent progressIntent = new Intent(PROGRESS_UPDATE);
@@ -107,9 +128,12 @@ public class DownloadService extends Service {
 
     private boolean isImageDimensionsValid(String imageUrl, int minWidth, int minHeight) {
         try {
+            String encodedUrl = URLEncoder.encode(imageUrl, "UTF-8");
             URL url = new URL(imageUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
+            connection.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.28) Gecko/20120306 Firefox/3.6.28");
             connection.connect();
 
             InputStream input = connection.getInputStream();
@@ -118,7 +142,7 @@ public class DownloadService extends Service {
             BitmapFactory.decodeStream(input, null, options);
             int imageWidth = options.outWidth;
             int imageHeight = options.outHeight;
-
+            Log.d("Image Dimensions", "Width: " + imageWidth + ", Height: " + imageHeight);
             // Check if the image dimensions meet the criteria
             if (imageWidth >= minWidth && imageHeight >= minHeight) {
                 return true;
@@ -127,7 +151,6 @@ public class DownloadService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return false;
     }
 
@@ -140,6 +163,8 @@ public class DownloadService extends Service {
 
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoInput(true);
+            connection.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.28) Gecko/20120306 Firefox/3.6.28");
             connection.connect();
 
             InputStream input = connection.getInputStream();
