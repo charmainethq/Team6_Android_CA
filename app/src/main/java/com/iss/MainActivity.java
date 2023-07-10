@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         fetchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetSelection();
                 String url = urlEditText.getText().toString();
                 if (!url.isEmpty()) {
                     // Check if the app has the required permissions
@@ -218,6 +219,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void resetSelection() {
+        selectionBar.setVisibility(View.INVISIBLE); // Hide the selection bar
+        selectionText.setVisibility(View.INVISIBLE); // Hide the selection text
+        selectionBar.setProgress(0); // Reset the progress
+        selectionText.setText("Selected 0 of 6 images"); // Reset the text
+    }
+
 
     @Override
     protected void onDestroy() {

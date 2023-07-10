@@ -45,6 +45,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private File SaveScore;
 
     private Integer MaxScore;
+    private Button newGameButton;
     private MediaPlayer clickSoundPlayer;
     private MediaPlayer gameOverSoundPlayer;
 
@@ -61,6 +62,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         timerChronometer = findViewById(R.id.timer_view);
         scoreCounter = findViewById(R.id.score_counter);
+        newGameButton = findViewById(R.id.btn_NG);
+        newGameButton.setOnClickListener(this);
 
         gameOverSoundPlayer = MediaPlayer.create(this, R.raw.smb_stage_clear);
 
@@ -74,6 +77,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
         clickSoundPlayer.setVolume(2.5f, 2.5f);
         clickSoundPlayer.start();
+
+        int id = v.getId();
+
+        if (id == R.id.btn_NG){
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
     }
 
@@ -230,7 +241,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         scoreCounter.setText("Score: " + score + "/6");
 
-        adapter = new CardsAdapter(cards, getApplicationContext());
+        adapter = new CardsAdapter(cards, recyclerView, getApplicationContext());
         recyclerView.setAdapter(adapter);
     }
     
