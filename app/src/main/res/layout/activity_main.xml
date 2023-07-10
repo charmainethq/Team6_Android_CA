@@ -8,7 +8,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
-    android:background="@drawable/bg"
+    android:background="@drawable/background_main"
     tools:context=".MainActivity">
 
     <EditText
@@ -16,18 +16,21 @@
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="https://" />
+        android:hint="https://"
+        android:textColorHint="@color/white"
+        android:fontFamily="@font/pixel_bold"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/fetchButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/urlEditText"
-        android:layout_marginRight="5dp"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="10dp"
-        android:background="@color/blue"
-        android:text="Fetch" />
+        android:text="Fetch"
+        android:textSize="16dp"
+        android:fontFamily="@font/pixel_bold"
+        android:elevation="12dp"/>
 
     <GridView
         android:id="@+id/gridView"
@@ -57,6 +60,8 @@
         android:layout_marginTop="-38dp"
         android:gravity="center"
         android:text="Downloading 0 of 20 images"
-        android:textSize="16dp" />
+        android:textSize="15dp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/pixel_bold"/>
 
 </RelativeLayout>

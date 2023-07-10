@@ -1,6 +1,5 @@
 package com.iss;
 
-
 import android.content.Context;
 import android.net.Uri;
 import android.animation.Animator;
@@ -124,7 +123,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                         ((GameActivity) cardImage.getContext()).startTimer();
                     }
 
-                    cardImage.setImageResource(card.image);
+                    // cardImage.setImageResource(card.image);
                     // Handle first click on unflipped card
                     if (!card.getFlipped() && !card.getMatched() && GameActivity.firstCard == null) {
                         // Set the first card and flip it
