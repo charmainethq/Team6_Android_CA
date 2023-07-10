@@ -2,7 +2,6 @@ package com.iss;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
@@ -18,14 +17,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -195,53 +191,29 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         outState.putInt("score", score);
         outState.putLong("timerBase", timerChronometer.getBase());
-
-        // Store the flipped state of the cards
-        int[] flippedStates = new int[cards.size()];
-        for (int i = 0; i < cards.size(); i++) {
-            Card card = cards.get(i);
-            flippedStates[i] = card.getFlipped() ? 1 : 0;
-        }
-        outState.putIntArray("flippedStates", flippedStates);
-
+        outState.putParcelableArrayList("cards", new ArrayList<>(cards));
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        score = savedInstanceState.getInt("score", 0);
+
+        score = savedInstanceState.getInt("score");
         long timerBase = savedInstanceState.getLong("timerBase");
         if (timerBase > 0) {
             timerChronometer.setBase(timerBase);
             timerChronometer.start();
             isGameStarted = true;
         }
+        cards = savedInstanceState.getParcelableArrayList("cards");
+
         scoreCounter.setText("Score: " + score + "/6");
-        // Restore the flipped state of the cards
-        int[] flippedStates = savedInstanceState.getIntArray("flippedStates");
-        if (flippedStates != null && flippedStates.length == cards.size()) {
-            for (int i = 0; i < flippedStates.length; i++) {
-                Card card = cards.get(i);
-                boolean isFlipped = flippedStates[i] == 1;
-                card.setFlipped(isFlipped);
 
-                // Restore the matched state based on the saved flipped state
-                if (isFlipped) {
-                    // Find the matching card
-                    for (int j = i + 1; j < cards.size(); j++) {
-                        Card matchingCard = cards.get(j);
-                        if (matchingCard.getImagePath().equals(card.getImagePath())) {
-                            card.setMatched(matchingCard.getFlipped());
-                            matchingCard.setMatched(true);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        adapter = new CardsAdapter(cards, getApplicationContext());
+        recyclerView.setAdapter(adapter);
     }
-
-
+    
 }
