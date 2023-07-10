@@ -105,9 +105,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private void setRecyclerView(){
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        //adapter = new CardsAdapter(cards, recyclerView);
+        adapter = new CardsAdapter(cards, recyclerView, getApplicationContext());
         recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
-        adapter = new CardsAdapter(cards, getApplicationContext());
         recyclerView.setAdapter(adapter);
     }
 
@@ -130,8 +129,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (score == 6) {
             timerChronometer.stop();
             saveTimeToFile((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000);
-            // Play the game over sound
-            gameOverSoundPlayer.start();
+
 
             // TODO: do a popup or something with time elapsed
             Toast.makeText(this,"You won!", Toast.LENGTH_LONG).show();
@@ -155,15 +153,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 // show
                 dialog.show();
             }
-
-            // add 5 seconds delay before returning to main page
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
-                    startActivity(myIntent);
-                }
-            }, 5000); // 5s = 5000ms
 
         }
     }

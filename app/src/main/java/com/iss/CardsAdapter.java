@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.content.Context;
@@ -16,10 +17,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
 import java.util.List;
@@ -31,9 +37,10 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
     private MediaPlayer clickSoundPlayer;
     private Context context;
 
-    public CardsAdapter(List<Card> cards, Context context) {
+    public CardsAdapter(List<Card> cards, RecyclerView recyclerView, Context context) {
         this.cards = cards;
         this.context = context;
+        this.recyclerView = recyclerView;
     }
 
     @NonNull
@@ -73,14 +80,30 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                     super.onAnimationEnd(animation);
                     // Update the card's flipped state after the animation completes
                     cards.get(position).setFlipped(true);
-                    // notifyDataSetChanged();
+                     notifyDataSetChanged();
+                     // loadCardImage(position);
                 }
             });
             animatorSet.start();
         }
 
+        private void loadCardImage(int position) {
+            Card card = cards.get(position);
+            if (card.getFlipped() || card.getMatched()) {
+                Glide.with(context)
+                        .load(new File(card.getImagePath()))
+                        .into(cardImage);
+            } else {
+                cardImage.setImageResource(R.drawable.back_image);
+            }
+        }
+
         private void flipBackCard(final int position) {
-            View view = recyclerView.findViewHolderForAdapterPosition(position).itemView;
+            RecyclerView.ViewHolder viewHolder = recyclerView.findViewHolderForAdapterPosition(position);
+            if (viewHolder == null) {
+                return;
+            }
+            View view = viewHolder.itemView;
             AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(
                     view.getContext(), R.animator.flip_backward);
             animatorSet.setTarget(view);
@@ -89,7 +112,8 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
                     cards.get(position).setFlipped(false);
-                    // notifyDataSetChanged();
+                    notifyDataSetChanged();
+                    // loadCardImage(position);
 
                 }
             });
@@ -105,6 +129,18 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
             if (card.getFlipped() || card.getMatched()) {
                 Glide.with(context)
                         .load(new File(card.getImagePath()))
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                flipCard(position);
+                                return false;
+                            }
+                        })
                         .into(cardImage);
             } else {
                 cardImage.setImageResource(R.drawable.back_image);
@@ -122,7 +158,8 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                         ((GameActivity) cardImage.getContext()).startTimer();
                     }
 
-                    cardImage.setImageResource(card.image);
+                    //cardImage.setImageResource(card.image);
+
                     // Handle first click on unflipped card
                     if (!card.getFlipped() && !card.getMatched() && GameActivity.firstCard == null) {
                         // Set the first card and flip it
