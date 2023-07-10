@@ -101,6 +101,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         adapter = new CardsAdapter(cards, recyclerView);
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
         recyclerView.setAdapter(adapter);
     }
 
