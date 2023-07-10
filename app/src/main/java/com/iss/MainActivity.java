@@ -154,12 +154,13 @@ public class MainActivity extends AppCompatActivity {
                         if (selectedImageUrls.contains(selectedImageUrl)) {
                             // The image is already selected, so deselect it
                             selectedImageUrls.remove(selectedImageUrl);
+                            imageView.setCropToPadding(false); // normalize padding
                             imageView.setBackgroundResource(0); // Remove the border
                         } else if (selectedImageUrls.size() < 6) { // Allow up to 6 images to be selected
                             // The image is not selected, so select it
                             selectedImageUrls.add(selectedImageUrl);
                             // TODO: Image borders added but need fine tune image scaling
-                            imageView.setAdjustViewBounds(true);
+                            imageView.setCropToPadding(true); // set padding for border to crop
                             imageView.setBackgroundResource(R.drawable.border_selected);
                         }
 
