@@ -1,6 +1,7 @@
 package com.iss;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -29,6 +30,7 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
     private Integer[] records;
     private File SaveScore;
     private ScoreAdapter adapter;
+    private MediaPlayer clickSoundPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +55,14 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
+        clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
+        clickSoundPlayer.setVolume(2.5f, 2.5f);
+        clickSoundPlayer.start();
+
         int id = v.getId();
 
         if (id == R.id.btnBack) {
-            // btn1 clicked
-            Intent intent = new Intent(this, GameActivity.class);
-            startActivity(intent);
+            onBackPressed();
         }
 
         if (id == R.id.btnClear) {
@@ -67,6 +71,15 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
             Toast.makeText(this,"Cleaned record", Toast.LENGTH_LONG).show();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        // Navigate back to MainActivity
+        Intent intent = new Intent(ResultActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish(); // Finish the current activity
+    }
+
 
     private Integer[] getRecords(){
         final List<Integer> rec = new ArrayList<>();

@@ -1,8 +1,10 @@
 package com.iss;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -43,6 +45,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private File SaveScore;
 
     private Integer MaxScore;
+    private MediaPlayer clickSoundPlayer;
+    private MediaPlayer gameOverSoundPlayer;
+
 
     private ArrayList<String> selectedImageUrls;
 
@@ -51,15 +56,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-
         setCardImages();
         setRecyclerView();
 
         timerChronometer = findViewById(R.id.timer_view);
         scoreCounter = findViewById(R.id.score_counter);
 
-        Button btnResult = findViewById(R.id.btnResult);
-        btnResult.setOnClickListener(this);
+        gameOverSoundPlayer = MediaPlayer.create(this, R.raw.smb_stage_clear);
+
 
         SaveScore = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + "won_time" + ".txt");
 
@@ -67,11 +71,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        int id = v.getId();
-        if (id == R.id.btnResult) {
-            Intent intent = new Intent(this, ResultActivity.class);
-            startActivity(intent);
-        }
+        clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
+        clickSoundPlayer.setVolume(2.5f, 2.5f);
+        clickSoundPlayer.start();
+
     }
 
     protected void setCardImages() {
@@ -84,14 +87,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             cards.add(new Card(selectedImagePath));
             cards.add(new Card(selectedImagePath));
         }
-        Collections.shuffle(cards);
+        //Collections.shuffle(cards);
     }
 
 
     private void setRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
-        adapter = new CardsAdapter(cards, getApplicationContext());
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        adapter = new CardsAdapter(cards, recyclerView, getApplicationContext());
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
         recyclerView.setAdapter(adapter);
     }
 
@@ -133,6 +137,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
+                        returnToMain();
                     }
                 });
 
@@ -140,7 +145,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 dialog.show();
             }
 
+            // add 5 seconds delay before returning to main page
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    returnToMain();
+                }
+            }, 5000);
+
         }
+    }
+
+    private void returnToMain(){
+        Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
+        startActivity(myIntent);
     }
 
     private void saveTimeToFile(long elapsedTime) {

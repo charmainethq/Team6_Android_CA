@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -58,7 +59,18 @@ public class DownloadService extends Service {
                 imageUrls = new ArrayList<>();
                 count = 0;
 
+
+
                 try {
+                    // Check if entered field  is a URL
+                    URL urlObj = new URL(url);
+                    String protocol = urlObj.getProtocol();
+                    if (!protocol.equals("http") && !protocol.equals("https")) {
+                        sendErrorBroadcast("Invalid URL protocol. Only HTTP and HTTPS are supported.");
+                        return;
+                    }
+
+                    // Retrieve images
                     Document doc = Jsoup.connect(url).get();
                     Elements imgElements = doc.select("img");
 
@@ -66,7 +78,6 @@ public class DownloadService extends Service {
                         sendErrorBroadcast("No images found at the provided URL.");
                         return;
                     }
-
                     for (Element imgElement : imgElements) {
                         if (Thread.currentThread().isInterrupted()) {
                             return;
@@ -102,6 +113,9 @@ public class DownloadService extends Service {
                     completeIntent.putStringArrayListExtra("imageUrls", imageUrls);
                     sendBroadcast(completeIntent);
 
+                } catch (MalformedURLException e) {
+                    sendErrorBroadcast("Please provide a valid URL.");
+                    e.printStackTrace();
                 } catch (IOException e) {
                     sendErrorBroadcast("Failed to connect to the provided URL.");
                     e.printStackTrace();
