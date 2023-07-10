@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView selectionText;
 
+    private Button resultButton;
+
     private ArrayList<String> selectedImageUrls;
     private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
         @Override
@@ -106,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         urlEditText = findViewById(R.id.urlEditText);
         fetchButton = findViewById(R.id.fetchButton);
         gridView = findViewById(R.id.gridView);
-
+        resultButton = findViewById(R.id.btnResult);
         downloadBar = findViewById(R.id.downloadBar);
         downloadText = findViewById(R.id.downloadText);
         selectionBar = findViewById(R.id.selectionBar);
@@ -157,12 +159,13 @@ public class MainActivity extends AppCompatActivity {
                         if (selectedImageUrls.contains(selectedImageUrl)) {
                             // The image is already selected, so deselect it
                             selectedImageUrls.remove(selectedImageUrl);
+                            imageView.setCropToPadding(false); // normalize padding
                             imageView.setBackgroundResource(0); // Remove the border
                         } else if (selectedImageUrls.size() < 6) { // Allow up to 6 images to be selected
                             // The image is not selected, so select it
                             selectedImageUrls.add(selectedImageUrl);
                             // TODO: Image borders added but need fine tune image scaling
-                            imageView.setAdjustViewBounds(true);
+                            imageView.setCropToPadding(true); // set padding for border to crop
                             imageView.setBackgroundResource(R.drawable.border_selected);
                         }
 
@@ -177,6 +180,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+            }
+        });
+
+        resultButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,ResultActivity.class);
+                startActivity(intent);
             }
         });
     }
