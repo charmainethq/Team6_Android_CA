@@ -5,7 +5,9 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
@@ -51,6 +53,8 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer gameOverSoundPlayer;
 
 
+    private ArrayList<String> selectedImageUrls;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,24 +88,26 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    protected void setCardImages(){
-        // TODO: replace with downloaded images somehow
-        int[] cardImages = {R.drawable.image1, R.drawable.image2, R.drawable.image3, R.drawable.image4, R.drawable.image5, R.drawable.image6};
+    protected void setCardImages() {
+        selectedImageUrls = getIntent().getStringArrayListExtra("SelectedImages");
+        Log.d("SelectedImages", selectedImageUrls.toString());
 
         // Add each image twice
         cards = new ArrayList<>();
-        for (int cardImage : cardImages) {
-            cards.add(new Card(cardImage));
-            cards.add(new Card(cardImage));
+        for (String selectedImagePath : selectedImageUrls) {
+            cards.add(new Card(selectedImagePath));
+            cards.add(new Card(selectedImagePath));
         }
         Collections.shuffle(cards);
     }
 
+
     private void setRecyclerView(){
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new CardsAdapter(cards, recyclerView);
+        //adapter = new CardsAdapter(cards, recyclerView);
         recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
+        adapter = new CardsAdapter(cards, getApplicationContext());
         recyclerView.setAdapter(adapter);
     }
 
@@ -149,6 +155,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 // show
                 dialog.show();
             }
+
+            // add 5 seconds delay before returning to main page
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
+                    startActivity(myIntent);
+                }
+            }, 5000); // 5s = 5000ms
 
         }
     }

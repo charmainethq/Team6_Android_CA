@@ -8,6 +8,8 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import com.bumptech.glide.Glide;
+
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,10 +29,11 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
     private List<Card> cards;
     private RecyclerView recyclerView;
     private MediaPlayer clickSoundPlayer;
+    private Context context;
 
-    public CardsAdapter(List<Card> cards, RecyclerView recyclerView) {
+    public CardsAdapter(List<Card> cards, Context context) {
         this.cards = cards;
-        this.recyclerView = recyclerView;
+        this.context = context;
     }
 
     @NonNull
@@ -97,7 +103,9 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
         public void bind(final Card card, final int position) {
             // Show image only if card has been flipped or is matched.
             if (card.getFlipped() || card.getMatched()) {
-                cardImage.setImageResource(card.image);
+                Glide.with(context)
+                        .load(new File(card.getImagePath()))
+                        .into(cardImage);
             } else {
                 cardImage.setImageResource(R.drawable.back_image);
             }
@@ -131,11 +139,12 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                             @Override
                             public void run() {
                                 // Match found, set to matched and update the score
-                                if (GameActivity.firstCard != null && GameActivity.firstCard.image == card.image) {
+                                if (GameActivity.firstCard != null && GameActivity.firstCard.getImagePath().equals(card.getImagePath())) {
                                     GameActivity.firstCard.setMatched(true);
                                     card.setMatched(true);
                                     ((GameActivity) cardImage.getContext()).updateScore();
                                 }
+
                                 // No match found, flip it back
                                 else {
                                     // null handler
