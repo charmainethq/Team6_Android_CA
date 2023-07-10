@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="#5d94f9"
     tools:context=".GameActivity">
 
     <TextView
@@ -14,7 +15,9 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="24dp"
         android:text="Score: 0/6"
+        android:textColor="@color/white"
         android:textSize="18sp"
+        android:fontFamily="@font/pixel_bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -26,7 +29,9 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="28dp"
         android:text="placeholder"
+        android:textColor="@color/white"
         android:textSize="18sp"
+        android:fontFamily="@font/pixel_bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,6 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Records"
+        android:fontFamily="@font/pixel_bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         />

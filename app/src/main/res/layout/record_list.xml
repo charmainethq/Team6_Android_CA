@@ -13,6 +13,7 @@
         android:textColor="@color/silver"
         android:gravity="center"
         android:padding="16dp"
+        android:fontFamily="@font/pixel_bold"
         android:text="Tops"
         android:textStyle="bold"
         />
@@ -23,6 +24,7 @@
         android:textColor="@color/silver"
         android:gravity="center"
         android:textSize="20dp"
+        android:fontFamily="@font/pixel_bold"
         android:padding="16dp"
         android:layout_weight="70"
         android:text="Score"

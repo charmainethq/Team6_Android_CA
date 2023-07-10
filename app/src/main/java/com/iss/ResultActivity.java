@@ -1,6 +1,7 @@
 package com.iss;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -29,6 +30,7 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
     private Integer[] records;
     private File SaveScore;
     private ScoreAdapter adapter;
+    private MediaPlayer clickSoundPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,10 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
+        clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
+        clickSoundPlayer.setVolume(2.5f, 2.5f);
+        clickSoundPlayer.start();
+
         int id = v.getId();
 
         if (id == R.id.btnBack) {

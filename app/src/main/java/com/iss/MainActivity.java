@@ -4,8 +4,11 @@ import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+
 import android.os.Bundle;
 
 import android.os.Handler;
@@ -30,6 +33,7 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private MediaPlayer clickSoundPlayer;
 
     private static final int REQUEST_CODE_PERMISSION = 123;
     private EditText urlEditText;
@@ -148,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void launchGameActivity(View view) {
+        clickSoundPlayer = MediaPlayer.create(view.getContext(), R.raw.smb_kick);
+        clickSoundPlayer.setVolume(2.5f, 2.5f);
+        clickSoundPlayer.start();
         Intent intent = new Intent(this, GameActivity.class);
         intent.putStringArrayListExtra("SelectedImages", selectedImageUrls);
         startActivity(intent);
