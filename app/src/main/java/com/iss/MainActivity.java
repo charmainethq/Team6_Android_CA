@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView selectionText;
 
+    private Button resultButton;
+
     private ArrayList<String> selectedImageUrls;
     private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
         @Override
@@ -106,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         urlEditText = findViewById(R.id.urlEditText);
         fetchButton = findViewById(R.id.fetchButton);
         gridView = findViewById(R.id.gridView);
-
+        resultButton = findViewById(R.id.btnResult);
         downloadBar = findViewById(R.id.downloadBar);
         downloadText = findViewById(R.id.downloadText);
         selectionBar = findViewById(R.id.selectionBar);
@@ -178,6 +180,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+            }
+        });
+
+        resultButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,ResultActivity.class);
+                startActivity(intent);
             }
         });
     }
