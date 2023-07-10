@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener{
+public class GameActivity extends AppCompatActivity implements View.OnClickListener {
     private RecyclerView recyclerView;
     private CardsAdapter adapter;
 
@@ -92,9 +92,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    private void setRecyclerView(){
+    private void setRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
         adapter = new CardsAdapter(cards, getApplicationContext());
         recyclerView.setAdapter(adapter);
     }
@@ -113,6 +113,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             MaxScore = getMaxScore();
         }
     }
+
     public void checkGameOver() {
 
         if (score == 6) {
@@ -121,9 +122,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
 
             // TODO: do a popup or something with time elapsed
-            Toast.makeText(this,"You won!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "You won!", Toast.LENGTH_LONG).show();
 
-            if((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000 < MaxScore){
+            if ((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000 < MaxScore) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 View dialogView = getLayoutInflater().inflate(R.layout.new_record, null);
                 builder.setView(dialogView);
@@ -168,7 +169,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     BufferedReader br = new BufferedReader(isr);
                     String line;
                     while ((line = br.readLine()) != null) {
-                        if(Integer.parseInt(line) < value[0])
+                        if (Integer.parseInt(line) < value[0])
                             value[0] = Integer.parseInt(line);
                     }
                     br.close();
@@ -191,7 +192,56 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         return value[0];
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("score", score);
+        outState.putLong("timerBase", timerChronometer.getBase());
 
+        // Store the flipped state of the cards
+        int[] flippedStates = new int[cards.size()];
+        for (int i = 0; i < cards.size(); i++) {
+            Card card = cards.get(i);
+            flippedStates[i] = card.getFlipped() ? 1 : 0;
+        }
+        outState.putIntArray("flippedStates", flippedStates);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        score = savedInstanceState.getInt("score", 0);
+        long timerBase = savedInstanceState.getLong("timerBase");
+        if (timerBase > 0) {
+            timerChronometer.setBase(timerBase);
+            timerChronometer.start();
+            isGameStarted = true;
+        }
+        scoreCounter.setText("Score: " + score + "/6");
+        // Restore the flipped state of the cards
+        int[] flippedStates = savedInstanceState.getIntArray("flippedStates");
+        if (flippedStates != null && flippedStates.length == cards.size()) {
+            for (int i = 0; i < flippedStates.length; i++) {
+                Card card = cards.get(i);
+                boolean isFlipped = flippedStates[i] == 1;
+                card.setFlipped(isFlipped);
+
+                // Restore the matched state based on the saved flipped state
+                if (isFlipped) {
+                    // Find the matching card
+                    for (int j = i + 1; j < cards.size(); j++) {
+                        Card matchingCard = cards.get(j);
+                        if (matchingCard.getImagePath().equals(card.getImagePath())) {
+                            card.setMatched(matchingCard.getFlipped());
+                            matchingCard.setMatched(true);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 
 }

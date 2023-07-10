@@ -108,7 +108,7 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                                 GameActivity.firstCard = null;
                                 notifyDataSetChanged();
                             }
-                        }, 1000); // Adjust the delay time as needed (e.g., 1000 milliseconds = 1 second)
+                        }, 200); // Adjust the delay time as needed (e.g., 1000 milliseconds = 1 second)
                     }
                 }
             });
