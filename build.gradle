@@ -3,7 +3,3 @@ plugins {
     id 'com.android.application' version '8.0.2' apply false
     id 'com.android.library' version '8.0.2' apply false
 }
-// Build gradle and compile on my Ram Disk F drive..
-allprojects {
-    buildDir = "F:/Android Studio Cache/${rootProject.name}/${project.name}"
-}
