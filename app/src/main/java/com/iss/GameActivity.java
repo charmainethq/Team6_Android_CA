@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -62,19 +63,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         timerChronometer = findViewById(R.id.timer_view);
         scoreCounter = findViewById(R.id.score_counter);
 
-        Button btnResult = findViewById(R.id.btnResult);
-        btnResult.setOnClickListener(this);
 
         SaveScore = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + "won_time" + ".txt");
 
-        Button btnBack = findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
-                GameActivity.this.startActivity(myIntent);
-            }
-        });
     }
 
     @Override
@@ -150,6 +141,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 // show
                 dialog.show();
             }
+
+            // add 5 seconds delay before returning to main page
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent myIntent = new Intent(GameActivity.this, MainActivity.class);
+                    startActivity(myIntent);
+                }
+            }, 5000); // 5s = 5000ms
 
         }
     }
