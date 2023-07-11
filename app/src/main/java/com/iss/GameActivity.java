@@ -24,8 +24,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -49,7 +50,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer clickSoundPlayer;
     private MediaPlayer gameOverSoundPlayer;
 
-
     private ArrayList<String> selectedImageUrls;
 
     @Override
@@ -66,7 +66,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         newGameButton.setOnClickListener(this);
 
         gameOverSoundPlayer = MediaPlayer.create(this, R.raw.smb_stage_clear);
-
 
         SaveScore = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + "won_time" + ".txt");
 
@@ -124,37 +123,51 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             MaxScore = getMaxScore();
         }
     }
-
+    private String formatTime(long seconds) {
+        Duration duration = Duration.ofSeconds(seconds);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("m:ss");
+        String formattedTime = duration.toMinutesPart() + ":" +
+                String.format("%02d", duration.toSecondsPart());
+        return formattedTime;
+    }
     public void checkGameOver() {
 
         if (score == 6) {
             timerChronometer.stop();
+            long currentScore = (SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000;
             saveTimeToFile((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000);
-
 
             // TODO: do a popup or something with time elapsed
             Toast.makeText(this, "You won!", Toast.LENGTH_LONG).show();
 
-            if ((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000 < MaxScore) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                View dialogView = getLayoutInflater().inflate(R.layout.new_record, null);
-                builder.setView(dialogView);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            View dialogView;
 
-                //create
-                final AlertDialog dialog = builder.create();
-
-                // disappear after click
-                dialogView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                        returnToMain();
-                    }
-                });
-
-                // show
-                dialog.show();
+            if (currentScore < MaxScore) {
+                dialogView = getLayoutInflater().inflate(R.layout.new_record, null);
+            } else {
+                dialogView = getLayoutInflater().inflate(R.layout.game_win, null);
             }
+            TextView current_Score = dialogView.findViewById(R.id.current_score);
+            String scoreFormatted = formatTime(currentScore);
+            current_Score.setText("Score : " + scoreFormatted);
+
+            builder.setView(dialogView);
+
+            //create
+            final AlertDialog dialog = builder.create();
+
+            // disappear after click
+            dialogView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    returnToMain();
+                }
+            });
+
+            // show
+            dialog.show();
 
             // add 5 seconds delay before returning to main page
             new Handler().postDelayed(new Runnable() {
@@ -163,7 +176,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                     returnToMain();
                 }
             }, 5000);
-
         }
     }
 
