@@ -4,23 +4,19 @@ import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -29,7 +25,6 @@ import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
 import java.util.List;
-import java.util.Objects;
 
 public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHolder> {
     private List<Card> cards;
@@ -107,7 +102,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
             animatorSet.start();
         }
 
-
         public void bind(final Card card, final int position) {
             // Show image only if card has been flipped or is matched.
             if (card.getFlipped() || card.getMatched()) {
@@ -145,7 +139,6 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                         ((GameActivity) cardImage.getContext()).startTimer();
                     }
 
-
                     // Handle first click on unflipped card
                     if (!card.getFlipped() && !card.getMatched() && GameActivity.firstCard == null) {
                         // Set the first card and flip it
@@ -180,12 +173,10 @@ public class CardsAdapter extends RecyclerView.Adapter<CardsAdapter.CardViewHold
                                 GameActivity.firstCard = null;
                             }
                         }, 600); // Adjust the delay time as needed (e.g., 1000 milliseconds = 1 second)
-
                     }
                 }
             });
         }
-
     }
 }
 
