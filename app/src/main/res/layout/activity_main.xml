@@ -52,7 +52,7 @@
         />
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/selectionBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,11 +63,11 @@
         android:visibility="invisible"/>
 
     <TextView
-        android:id="@+id/progressText"
+        android:id="@+id/selectionText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/downloadBar"
-        android:layout_marginTop="-48dp"
+        android:layout_marginTop="-32dp"
         android:gravity="center"
         android:text="Selected 0 of 6 images"
         android:textSize="16dp"
@@ -90,7 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/downloadBar"
-        android:layout_marginTop="-48dp"
+        android:layout_marginTop="-32dp"
         android:gravity="center"
         android:text="Downloading 0 of 20 images"
         android:textSize="16dp"
