@@ -92,11 +92,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_home);
 
-        setViews();
-        setReceiverFilters();
-        setClickListeners();
+        Button startBtn = findViewById(R.id.btnGame);
+        startBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickSoundPlayer = MediaPlayer.create(view.getContext(), R.raw.smb_kick);
+                clickSoundPlayer.setVolume(2.5f, 2.5f);
+                clickSoundPlayer.start();
+
+                setContentView(R.layout.activity_main);
+                setViews();
+                setReceiverFilters();
+                setClickListeners();
+            }
+        });
+
     }
 
     @Override
@@ -114,9 +126,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void launchGameActivity(View view) {
-        clickSoundPlayer = MediaPlayer.create(view.getContext(), R.raw.smb_kick);
-        clickSoundPlayer.setVolume(2.5f, 2.5f);
-        clickSoundPlayer.start();
         Intent intent = new Intent(this, GameActivity.class);
         intent.putStringArrayListExtra("SelectedImages", selectedImageUrls);
         startActivity(intent);
@@ -126,6 +135,10 @@ public class MainActivity extends AppCompatActivity {
         fetchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clickSoundPlayer = MediaPlayer.create(v.getContext(), R.raw.smb_kick);
+                clickSoundPlayer.setVolume(2.5f, 2.5f);
+                clickSoundPlayer.start();
+
                 resetSelection();
                 String url = urlEditText.getText().toString();
                 if (!url.isEmpty()) {
@@ -184,6 +197,10 @@ public class MainActivity extends AppCompatActivity {
         resultButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                clickSoundPlayer = MediaPlayer.create(view.getContext(), R.raw.smb_kick);
+                clickSoundPlayer.setVolume(2.5f, 2.5f);
+                clickSoundPlayer.start();
+
                 Intent intent = new Intent(MainActivity.this,ResultActivity.class);
                 startActivity(intent);
             }

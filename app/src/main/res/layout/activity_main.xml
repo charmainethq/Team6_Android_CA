@@ -8,7 +8,7 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:paddingTop="16dp"
-    android:background="@drawable/bg"
+    android:background="@drawable/background_main"
     tools:context=".MainActivity">
 
     <EditText
@@ -16,18 +16,19 @@
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="https://" />
+        android:hint="https://"
+        android:fontFamily="@font/pixel_bold"/>
 
-    <androidx.appcompat.widget.AppCompatButton
+    <Button
         android:id="@+id/fetchButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/urlEditText"
         android:layout_marginRight="5dp"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="10dp"
-        android:background="@color/blue"
-        android:text="Fetch" />
+        android:text="Fetch"
+        android:fontFamily="@font/pixel_bold"/>
 
     <GridView
         android:id="@+id/gridView"
@@ -35,17 +36,19 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/fetchButton"
         android:layout_marginTop="14dp"
-        android:horizontalSpacing="16dp"
+        android:horizontalSpacing="12dp"
         android:numColumns="4"
-        android:verticalSpacing="16dp" />
+        android:verticalSpacing="30dp" />
 
     <Button
         android:id="@+id/btnResult"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Records"
+        android:text="Game Records"
+        android:layout_marginBottom="8dp"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/pixel_bold"
         android:layout_above="@id/selectionBar"
-        android:layout_alignParentEnd="true"
         />
 
     <ProgressBar
@@ -53,7 +56,7 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/selectionText"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="36dp"
         android:max="6"
         android:progress="0"
@@ -63,11 +66,13 @@
         android:id="@+id/selectionText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/downloadBar"
-        android:layout_marginTop="-38dp"
+        android:layout_marginTop="-32dp"
         android:gravity="center"
+        android:layout_below="@+id/downloadBar"
         android:text="Selected 0 of 6 images"
-        android:textSize="16dp"
+        android:textSize="15dp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/pixel_bold"
         android:visibility="invisible"/>
 
     <ProgressBar
@@ -86,10 +91,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/downloadBar"
-        android:layout_marginTop="-38dp"
+        android:layout_marginTop="-32dp"
         android:gravity="center"
         android:text="Downloading 0 of 20 images"
-        android:textSize="16dp"
+        android:fontFamily="@font/pixel_bold"
+        android:textSize="15dp"
+        android:textColor="@color/white"
         android:visibility="invisible"/>
 
 </RelativeLayout>
