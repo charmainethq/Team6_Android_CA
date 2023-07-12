@@ -72,11 +72,19 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private long lastToastTime = 0;
+
     private BroadcastReceiver errorReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            long now = System.currentTimeMillis();
+            if (now - lastToastTime < 6000) {
+                return;
+            }
+
             String errorMessage = intent.getStringExtra(DownloadService.EXTRA_ERROR_MESSAGE);
             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+            lastToastTime = now;
         }
     };
 
@@ -198,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
                         } else if (selectedImageUrls.size() < 6) { // Allow up to 6 images to be selected
                             // The image is not selected, so select it
                             selectedImageUrls.add(selectedImageUrl);
-                            // TODO: Image borders added but need fine tune image scaling
                             imageView.setCropToPadding(true); // set padding for border to crop
                             imageView.setBackgroundResource(R.drawable.border_selected);
                         }
@@ -230,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setViews(){
         urlEditText = findViewById(R.id.urlEditText);
-        fetchButton = findViewById(R.id.fetchButton);
+        fetchButton = findViewById(R.id.fetchButton); // Add this line
         gridView = findViewById(R.id.gridView);
         resultButton = findViewById(R.id.btnResult);
         downloadBar = findViewById(R.id.downloadBar);
@@ -238,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
         selectionBar = findViewById(R.id.selectionBar);
         selectionText = findViewById(R.id.selectionText);
     }
+
     private void setReceiverFilters(){
         IntentFilter completeFilter = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
         registerReceiver(completeReceiver, completeFilter);
@@ -263,6 +271,11 @@ public class MainActivity extends AppCompatActivity {
         selectionText.setVisibility(View.INVISIBLE); // Hide the selection text
         selectionBar.setProgress(0); // Reset the progress
         selectionText.setText("Selected 0 of 6 images"); // Reset the text
+
+        for (ImageView imageView : imageAdapter.getImageViews()) {
+            imageView.setCropToPadding(false); // normalize padding
+            imageView.setBackgroundResource(0); // Remove the border
+        }
     }
 
 
@@ -274,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startDownload(final String url) {
+
         showDownload();
         Intent intent = new Intent(this, DownloadService.class);
         intent.putExtra("url", url);

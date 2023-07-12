@@ -15,6 +15,8 @@ public class ImageAdapter extends BaseAdapter {
 
     private Context context;
     private ArrayList<String> imagePaths;
+    private int numCards = 20;
+    private ArrayList<ImageView> imageViews = new ArrayList<>();
 
     public ImageAdapter(Context context, ArrayList<String> imagePaths) {
         this.context = context;
@@ -43,17 +45,38 @@ public class ImageAdapter extends BaseAdapter {
             imageView = new ImageView(context);
             imageView.setLayoutParams(new ViewGroup.LayoutParams(200, 200));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageViews.add(imageView);
         } else {
             imageView = (ImageView) convertView;
         }
 
-        File file = new File(imagePaths.get(position));
-        Picasso.get().load(file).into(imageView);
+        String imagePath = imagePaths.get(position);
+        if (imagePath != null && !imagePath.isEmpty()) {
+            File file = new File(imagePath);
+            Picasso.get().load(file).into(imageView);
+        } else {
+            // Handle null or empty imagePath
+            imageView.setImageDrawable(null); // Clear the imageView
+        }
+
+        imageView.setCropToPadding(false); // normalize padding
+        imageView.setBackgroundResource(0); // Remove the border
+
         return imageView;
+    }
+
+
+
+    public ArrayList<ImageView> getImageViews() {
+        return imageViews;
     }
 
     public void updateData(ArrayList<String> newImagePaths) {
         this.imagePaths = newImagePaths;
+        this.imageViews.clear();
         notifyDataSetChanged();
     }
+
+
+
 }
