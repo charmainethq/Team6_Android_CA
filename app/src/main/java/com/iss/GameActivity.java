@@ -140,8 +140,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             // Play the game over sound
             gameOverSoundPlayer.start();
 
-            // TODO: do a popup or something with time elapsed
-            Toast.makeText(this, "You won!", Toast.LENGTH_LONG).show();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             View dialogView;
