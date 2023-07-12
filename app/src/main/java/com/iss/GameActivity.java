@@ -137,6 +137,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             long currentScore = (SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000;
             saveTimeToFile((SystemClock.elapsedRealtime() - timerChronometer.getBase()) / 1000);
 
+            // Play the game over sound
+            gameOverSoundPlayer.start();
+
             // TODO: do a popup or something with time elapsed
             Toast.makeText(this, "You won!", Toast.LENGTH_LONG).show();
 
