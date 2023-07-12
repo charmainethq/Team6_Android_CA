@@ -51,4 +51,9 @@ public class ImageAdapter extends BaseAdapter {
         Picasso.get().load(file).into(imageView);
         return imageView;
     }
+
+    public void updateData(ArrayList<String> newImagePaths) {
+        this.imagePaths = newImagePaths;
+        notifyDataSetChanged();
+    }
 }

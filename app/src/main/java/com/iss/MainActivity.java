@@ -1,6 +1,7 @@
 package com.iss;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -46,13 +47,15 @@ public class MainActivity extends AppCompatActivity {
     private Button resultButton;
     private ArrayList<String> selectedImageUrls;
 
+    private ImageAdapter imageAdapter;
+
     private BroadcastReceiver completeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
             ArrayList<String> imageUrls = intent.getStringArrayListExtra("imageUrls");
             int count = intent.getIntExtra("count", 0);
-            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
+            updateImageData(imageUrls);
             // if count above 20, show download completed and hide progress bar
             if(count >= 20){
                 downloadCompleted(count);
@@ -82,19 +85,25 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             imageUrls = intent.getStringArrayListExtra("imageUrls");
             // set images to grid view
-            gridView.setAdapter(new ImageAdapter(MainActivity.this, imageUrls));
+            updateImageData(imageUrls);
             // get the count and update the download progress bar
             int count = intent.getIntExtra("count", 0);
             updateDownload(count);
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+
+
         Button startBtn = findViewById(R.id.btnGame);
+        imageAdapter = new ImageAdapter(this, new ArrayList<>());
+
+
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,7 +111,16 @@ public class MainActivity extends AppCompatActivity {
                 clickSoundPlayer.setVolume(2.5f, 2.5f);
                 clickSoundPlayer.start();
 
+                clickSoundPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        mp.release();
+                    }
+                });
+
                 setContentView(R.layout.activity_main);
+                gridView = findViewById(R.id.gridView);
+                gridView.setAdapter(imageAdapter);
                 setViews();
                 setReceiverFilters();
                 setClickListeners();
@@ -129,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putStringArrayListExtra("SelectedImages", selectedImageUrls);
         startActivity(intent);
+    }
+    private void updateImageData(ArrayList<String> newImagePaths) {
+        imageAdapter.updateData(newImagePaths);
     }
 
     private void setClickListeners(){

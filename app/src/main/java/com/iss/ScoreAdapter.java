@@ -28,7 +28,7 @@ public class ScoreAdapter extends ArrayAdapter<Object> {
         }
         // set the image for ImageView
         TextView txtTop = view.findViewById(R.id.txtTop);
-        txtTop.setText("TOP" + String.valueOf(1+pos));
+        txtTop.setText("TOP " + String.valueOf(1+pos));
         // set the text for TextView
         TextView txtTime = view.findViewById(R.id.txtTime);
         txtTime.setText(String.valueOf(scores[pos]) + "s");
