@@ -28,6 +28,8 @@
         android:layout_marginLeft="30dp"
         android:layout_marginTop="10dp"
         android:text="Fetch"
+        android:padding="4dp"
+        android:textSize="14sp"
         android:fontFamily="@font/pixel_bold"/>
 
     <GridView
