@@ -51,6 +51,7 @@ public class DownloadService extends Service {
     private void startDownload(final String url) {
         if (downloadThread != null && downloadThread.isAlive()) {
             downloadThread.interrupt();
+
         }
 
         downloadThread = new Thread(new Runnable() {
@@ -58,8 +59,6 @@ public class DownloadService extends Service {
             public void run() {
                 imageUrls = new ArrayList<>();
                 count = 0;
-
-
 
                 try {
                     // Check if entered field  is a URL
@@ -78,40 +77,52 @@ public class DownloadService extends Service {
                         sendErrorBroadcast("No images found at the provided URL.");
                         return;
                     }
+
+
                     for (Element imgElement : imgElements) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            return;
+                        synchronized (this) {
+                            // Check here before starting the new loop iteration
+                            if (Thread.currentThread().isInterrupted() || count >= 20) {
+                                return;
+                            }
                         }
+
                         String imageUrl = imgElement.absUrl("src");
                         Log.d("tag", imageUrl);
 
                         int minWidth = 350;
                         int minHeight = 280;
+
                         if (isImageDimensionsValid(imageUrl, minWidth, minHeight)) {
-                            String imagePath = downloadImage(imageUrl);
-                            imageUrls.add(imagePath);
-                            count++;
+                            synchronized (this) {
+                                // Download the image.
+                                String imagePath = downloadImage(imageUrl);
+                                if (Thread.currentThread().isInterrupted() || count >= 20) {
+                                    return;
+                                }
+                                if (imagePath!=null && !imagePath.trim().isEmpty()){
+                                    imageUrls.add(imagePath);
+                                    count++;
+                                    Log.d("count", "sankalp" + count);
+                                    updateProgress(count);
 
-                            // Update the progress
-                            updateProgress(count);
-
-                            // Break the loop after downloading 20 images
-                            if (count >= 20) {
-                                break;
+                                }
+                                if (count == 20){
+                                    Log.d("tag", "here");
+                                    Intent completeIntent = new Intent(DOWNLOAD_COMPLETE);
+                                    completeIntent.putExtra("count", count);
+                                    completeIntent.putStringArrayListExtra("imageUrls", imageUrls);
+                                    sendBroadcast(completeIntent);
+                                }
                             }
+
                         }
                     }
-
-
                     if (imageUrls.isEmpty()) {
                         sendErrorBroadcast("No images of suitable dimensions found at the provided URL.");
                         return;
                     }
 
-                    Intent completeIntent = new Intent(DOWNLOAD_COMPLETE);
-                    completeIntent.putExtra("count", count);
-                    completeIntent.putStringArrayListExtra("imageUrls", imageUrls);
-                    sendBroadcast(completeIntent);
 
                 } catch (MalformedURLException e) {
                     sendErrorBroadcast("Please provide a valid URL.");

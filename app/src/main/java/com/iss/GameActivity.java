@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -97,7 +98,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             cards.add(new Card(selectedImagePath));
             cards.add(new Card(selectedImagePath));
         }
-        //Collections.shuffle(cards);
+        Collections.shuffle(cards);
     }
 
 
@@ -140,8 +141,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             // Play the game over sound
             gameOverSoundPlayer.start();
 
-            // TODO: do a popup or something with time elapsed
-            Toast.makeText(this, "You won!", Toast.LENGTH_LONG).show();
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             View dialogView;
